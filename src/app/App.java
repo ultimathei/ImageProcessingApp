@@ -3,7 +3,6 @@ package app;
 import app.mvc.controllers.Controller;
 import app.utils.AppLogger;
 import javafx.application.Application;
-import javafx.event.EventHandler;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
