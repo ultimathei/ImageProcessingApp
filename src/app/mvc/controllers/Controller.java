@@ -74,7 +74,6 @@ public class Controller implements ImageManipulationController {
       if (image.isError()) {
         // some file types are not supported by javafx's Image class
         image = ConvertImage.toJavafx(selectedFile);
-        if(image == null) throw new IIOException("");
       }
       
       view.setNewOriginalimage(model.setImageFiltered(model.setImageOriginal(image)));

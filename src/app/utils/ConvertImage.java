@@ -3,6 +3,8 @@ package app.utils;
 import java.awt.Graphics;
 import java.awt.image.*;
 import java.io.File;
+import java.io.IOException;
+
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
@@ -26,8 +28,7 @@ public class ConvertImage {
    * @return the file converted to javafx Image
    *         or null if there was an error during load or conversion
    */
-  public static Image toJavafx(File selectedFile) {
-    try {
+  public static Image toJavafx(File selectedFile) throws IOException{
       BufferedImage bi = ImageIO.read(selectedFile);
       int w = bi.getWidth();
       int h = bi.getHeight();
@@ -37,9 +38,6 @@ public class ConvertImage {
       big.drawImage(bi, 0, 0, null);
   
       return SwingFXUtils.toFXImage(biRGB, null); 
-    } catch (Exception e) {
-      return null;
-    }
   }
 
   /**
