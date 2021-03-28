@@ -96,6 +96,11 @@ public class Controller implements ImageManipulationController {
     return true;
   }
 
+  /**
+   * Close application event handler
+   * @param event
+   * @return
+   */
   public boolean closeWindowEventHandler(WindowEvent event) {
     App.LOGGER.log("Wants to close the window..");
 
@@ -184,6 +189,11 @@ public class Controller implements ImageManipulationController {
         window -> closeWindowEventHandler(window)
     );
   }
+
+  public void setHasChanged(boolean state) {
+    model.setHasChanged(state);
+  }
+
 
   /**
    * Registers the services/events This is needed so all (and only the registered)

@@ -26,6 +26,7 @@ public class FileActionProvider implements FileAction {
         eventBus.addEventHandler(AppEvent.SAVE, event -> {
             if(save()) {
                 App.LOGGER.log("success: "+event.getEventType());
+                Controller.getInstance().setHasChanged(false);
             } else {
                 App.LOGGER.log("fail: "+event.getEventType());
             }

@@ -12,6 +12,7 @@ public class ImageActionProvider implements ImageAction {
         eventBus.addEventHandler(AppEvent.NEGATIVE, event -> {
             if(filterNegative()) {
                 App.LOGGER.log("success: "+event.getEventType());
+                Controller.getInstance().setHasChanged(true);
             } else {
                 App.LOGGER.log("fail: "+event.getEventType());
             }
@@ -20,6 +21,7 @@ public class ImageActionProvider implements ImageAction {
         eventBus.addEventHandler(AppEvent.FLIP_HORIZONTAL, event -> {
             if(flipHorizontal()) {
                 App.LOGGER.log("success: "+event.getEventType());
+                Controller.getInstance().setHasChanged(true);
             } else {
                 App.LOGGER.log("fail: "+event.getEventType());
             }
@@ -28,6 +30,7 @@ public class ImageActionProvider implements ImageAction {
         eventBus.addEventHandler(AppEvent.FLIP_VERTICAL, event -> {
             if(flipVertical()) {
                 App.LOGGER.log("success: "+event.getEventType());
+                Controller.getInstance().setHasChanged(true);
             } else {
                 App.LOGGER.log("fail: "+event.getEventType());
             }

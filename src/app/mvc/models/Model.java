@@ -80,10 +80,10 @@ public enum Model {
     }
 
     public int getCanvasWidth() {
-        return ( getViewerWidth() + getPaddingSize() ) * 2;
+        return ( viewerWidth + paddingSize ) * 2;
     }
     public int getCanvasHeight() {
-        return getViewerHeight() + getPaddingSize() * 2;
+        return viewerHeight + paddingSize * 2;
     }
 
     public int getViewerHeight() {
@@ -97,6 +97,8 @@ public enum Model {
     public boolean getHasChanged() {
         return hasChanged;
     }
+
+
 
     // -- SETTERS --
 
@@ -122,13 +124,13 @@ public enum Model {
         return imageFiltered;
     }
 
-    public void setViewerWidth(int w) {
-        viewerWidth = w;
-    }
+    // public void setViewerWidth(int w) {
+    //     viewerWidth = w;
+    // }
 
-    public void setViewerHeight(int h) {
-        viewerHeight = h;
-    }
+    // public void setViewerHeight(int h) {
+    //     viewerHeight = h;
+    // }
 
     public void setHasChanged(boolean state) {
         hasChanged = state;
