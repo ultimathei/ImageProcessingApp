@@ -39,10 +39,11 @@ public class SliderDialog<T extends Number> extends Dialog<T> {
     slider.setBlockIncrement(0.1);
     slider.setSnapToTicks(true);
     slider.valueProperty().bindBidirectional((SimpleObjectProperty<Number>) sliderValue);
+    makeSpecificities(value);
 
     numberField = new TextField();
     numberField.setText(slider.getValue() + "");
-    makeSpecificities(value);
+    numberField.textProperty().bind(sliderValue.asString("%.2f"));
 
     VBox vbox = new VBox(slider);
     vbox.setAlignment(Pos.CENTER);
@@ -68,11 +69,10 @@ public class SliderDialog<T extends Number> extends Dialog<T> {
       if (value instanceof Double) {
         slider.setValue((Double) value);
         slider.setMajorTickUnit(0.1);
-        numberField.textProperty().bind(sliderValue.asString("%.2"));
       } else if (value instanceof Integer) {
         slider.setValue((int) value);
         slider.setMajorTickUnit(1);
-        numberField.textProperty().bind(sliderValue.asString("%d"));
+        // numberField.textProperty().bind(sliderValue.asString("%d"));
       }
     }catch (Exception e) {
       //
