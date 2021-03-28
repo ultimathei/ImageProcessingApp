@@ -81,7 +81,13 @@ public class ImageActionProvider implements ImageAction {
 
     @Override
     public boolean pixelScale() {
-        App.LOGGER.log("resize image here..");
+        App.LOGGER.log("pixel scale image here..");
         return Controller.getInstance().displayPixelScaleDialog();
+    }
+    
+    @Override
+    public boolean pixelShift() {
+        App.LOGGER.log("pixel shift image here..");
+        return Controller.getInstance().displayPixelShiftDialog();
     }
 }

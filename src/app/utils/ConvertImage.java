@@ -51,6 +51,30 @@ public class ConvertImage {
    * @param scalar
    * @return
    */
+  public static Image pixelShift(Image image, int amount){
+    int width = (int) image.getWidth();
+    int height = (int) image.getHeight();
+    int[][][] imageArray = toArray(image);
+
+    // pixel scaling operation
+    for (int y = 0; y < height; y++) {
+      for (int x = 0; x < width; x++) {
+        for(int i = 1; i <= 3; i++) {
+          imageArray[x][y][i] = (int) Util.clamp(imageArray[x][y][i] + amount, 0, 255); 
+        }
+      }
+    }
+    
+    return fromArray(imageArray);
+  }
+  
+  /**
+   * Re-scale all the pixel values of an image, stored in a matrix.
+   * 
+   * @param image
+   * @param scalar
+   * @return
+   */
   public static Image pixelScale(Image image, double scalar){
     int width = (int) image.getWidth();
     int height = (int) image.getHeight();

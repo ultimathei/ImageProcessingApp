@@ -1,7 +1,6 @@
 package app.utils;
 
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Pos;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
@@ -14,36 +13,37 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
-public class SliderDialog extends Dialog<Double> {
+public class SliderDialog<T extends Number> extends Dialog<T> {
   private BorderPane root;
-  private DoubleProperty sliderValue;
+  private ButtonType setBtnType;
+  private ButtonType closeBtnType;
+  private SimpleObjectProperty<T> sliderValue;
+  private Slider slider;
+  private TextField numberField;
 
-  public SliderDialog(Stage primaryStage, String title, double value) {
+  public SliderDialog(Stage primaryStage, String title, T value) {
     super();
     initOwner(primaryStage);
     initStyle(StageStyle.UNDECORATED);
-    sliderValue = new SimpleDoubleProperty(value);
-    
+    sliderValue = new SimpleObjectProperty<>(value);
 
     root = new BorderPane();
     root.setTop(new Label(title));
 
-    Slider slider = new Slider();
+    slider = new Slider();
     slider.setMin(0.1);
     slider.setMax(2.0);
-    slider.setValue(value);
     slider.setShowTickLabels(true);
     slider.setShowTickMarks(true);
-    slider.setMajorTickUnit(0.1);
     slider.setMinorTickCount(1);
     slider.setBlockIncrement(0.1);
     slider.setSnapToTicks(true);
-    slider.valueProperty().bindBidirectional(sliderValue);
+    slider.valueProperty().bindBidirectional((SimpleObjectProperty<Number>) sliderValue);
 
-    TextField numberField = new TextField();
+    numberField = new TextField();
     numberField.setText(slider.getValue() + "");
-    numberField.textProperty().bind(sliderValue.asString("%.2f"));
-    
+    makeSpecificities(value);
+
     VBox vbox = new VBox(slider);
     vbox.setAlignment(Pos.CENTER);
 
@@ -51,14 +51,31 @@ public class SliderDialog extends Dialog<Double> {
     root.setCenter(vbox);
     getDialogPane().setContent(root);
 
-    ButtonType setBtnType = new ButtonType("Set", ButtonBar.ButtonData.APPLY);
-    ButtonType closeBtnType = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+    setBtnType = new ButtonType("Set", ButtonBar.ButtonData.APPLY);
+    closeBtnType = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
     getDialogPane().getButtonTypes().addAll(closeBtnType, setBtnType);
-
+    
     this.setResultConverter(button -> {
-      if(button == setBtnType)
-        return Util.round(sliderValue.doubleValue(), 2);
+      if (button == setBtnType) {
+        return (T) (Double) Util.round((Double) sliderValue.getValue(), 2);
+      }
       return null;
     });
+  }
+
+  private void makeSpecificities(T value) throws ClassCastException {
+    try{
+      if (value instanceof Double) {
+        slider.setValue((Double) value);
+        slider.setMajorTickUnit(0.1);
+        numberField.textProperty().bind(sliderValue.asString("%.2"));
+      } else if (value instanceof Integer) {
+        slider.setValue((int) value);
+        slider.setMajorTickUnit(1);
+        numberField.textProperty().bind(sliderValue.asString("%d"));
+      }
+    }catch (Exception e) {
+      //
+    }
   }
 }

@@ -6,4 +6,5 @@ public interface ImageAction{
     boolean flipVertical();
     boolean resize();
     boolean pixelScale();
+    boolean pixelShift();
 }
