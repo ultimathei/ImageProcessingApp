@@ -8,27 +8,21 @@ import javafx.event.EventType;
 import javafx.scene.image.Image;
 
 /**
- * A singleton class to store the model (of MVC) of the application.
- * using enum for singleton.
+ * A singleton class to store the model (of MVC) of the application. using enum
+ * for singleton.
  */
 public enum Model {
     INSTANCE;
-    private MenuModel menuModel = MenuModel.INSTANCE;
 
-    private boolean hasChanged = false;
+    private MenuModel menuModel = MenuModel.INSTANCE;
 
     // List of supported image formats
     private String[] formats = { "bmp", "gif", "tif", "jpeg", "jpg", "png" };
 
-    // option index for
-    private int opIndex = 0;
-    // last operation index reference
-    private int lastOp = 0;
-
     // The width and height of the app
     private int appWidth = 512;
     private int appHeight = 512;
-    private int paddingSize  = 10;
+    private int paddingSize = 10;
 
     private String originalImgType;
     // The input image saved as a javafx image object
@@ -36,13 +30,21 @@ public enum Model {
     // The modified image saved as a javafx image object
     private Image imageFiltered;
 
+    // ACTION HISTORY
+
+    // option index for
+    private int opIndex = 0;
+    // last operation index reference
+    private int lastOp = 0;
+    // unsaved changes indicator
+    private boolean hasChanged = false;
+
+    // -- GETTERS --
     // decorator to return menus List from menuModel
-    public List<Pair<String, List<Pair<String, EventType<AppEvent>>>>> getMenuStructure(){
+    public List<Pair<String, List<Pair<String, EventType<AppEvent>>>>> getMenuStructure() {
         return menuModel.getMenuStructure();
     }
 
-
-    // -- GETTERS --
     public String[] getFormats() {
         // sorted alphabetically and in lower case
         TreeSet<String> formatSet = new TreeSet<>();

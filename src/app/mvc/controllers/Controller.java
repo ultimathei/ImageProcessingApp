@@ -10,14 +10,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.Optional;
-
-import javax.imageio.IIOException;
-
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.image.Image;
-import javafx.scene.image.PixelFormat;
-import javafx.scene.image.PixelReader;
 import javafx.stage.FileChooser;
 import javafx.stage.WindowEvent;
 import javafx.stage.FileChooser.ExtensionFilter;
