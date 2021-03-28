@@ -185,28 +185,8 @@ public class View extends Scene {
     }
 
     // -- NOT USED CURRENTLY --
-
     /**
-     * Method to create the top panel.
-     * 
-     * @return the top panel with two buttons
-     */
-    private HBox makeImageEditorHBox() {
-        HBox hbox = new HBox();
-        hbox.setPadding(new Insets(15, 12, 15, 12));
-        hbox.setSpacing(10);
-        hbox.setStyle("-fx-background-color: #336699");
-
-        Button btn = makeControlButton("Negate image", AppEvent.NEGATIVE);
-        Button btn2 = makeControlButton("Flip horizontally", AppEvent.FLIP_HORIZONTAL);
-
-        hbox.getChildren().addAll(btn, btn2);
-
-        return hbox;
-    }
-
-    /**
-     * Creates a new menu button
+     * An example for how to use buttons
      * 
      * @param text
      * @param eventType
