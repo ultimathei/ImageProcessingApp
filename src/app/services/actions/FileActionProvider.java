@@ -3,7 +3,6 @@ package app.services.actions;
 import app.*;
 import app.mvc.controllers.Controller;
 import app.services.events.*;
-import javafx.application.Platform;
 
 /**
  * Concrete implementation of the FileAction interface.
@@ -35,7 +34,6 @@ public class FileActionProvider implements FileAction {
         eventBus.addEventHandler(AppEvent.QUIT, event -> {
             if(quit()) {
                 App.LOGGER.log("success: "+event.getEventType());
-                Platform.exit();
             } else {
                 App.LOGGER.log("fail: "+event.getEventType());
             }
@@ -57,6 +55,6 @@ public class FileActionProvider implements FileAction {
     @Override
     public boolean quit() {
         App.LOGGER.log("quit here..");
-        return Controller.getInstance().canIQuit();
+        return Controller.getInstance().tryQuit();
     }
 }

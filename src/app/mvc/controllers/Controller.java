@@ -90,12 +90,13 @@ public class Controller implements ImageManipulationController {
    * 
    * @return
    */
-  public boolean canIQuit() {
+  public boolean tryQuit() {
     // later decide if you want to display a warning instead (unsaved file for ex.)
+    mainStage.fireEvent(new WindowEvent(mainStage, WindowEvent.WINDOW_CLOSE_REQUEST));
     return true;
   }
 
-  public void closeWindowEventHandler(WindowEvent event) {
+  public boolean closeWindowEventHandler(WindowEvent event) {
     App.LOGGER.log("Wants to close the window..");
 
     if (model.getHasChanged()) {
@@ -117,6 +118,7 @@ public class Controller implements ImageManipulationController {
           event.consume();
         } else {
           App.LOGGER.log("Closing app without saving. Good bye!");
+          return false;
         }
 
         // add save option here
@@ -124,7 +126,9 @@ public class Controller implements ImageManipulationController {
       }
     } else {
       App.LOGGER.log("Closing app. Good bye!");
+      return true;
     }
+    return false;
   }
 
   // -- IMAGE MANIPULATION --
