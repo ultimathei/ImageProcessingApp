@@ -36,8 +36,17 @@ public class ImageActionProvider implements ImageAction {
             }
         });
         
-        eventBus.addEventHandler(AppEvent.SCALE, event -> {
-            if(scale()) {
+        eventBus.addEventHandler(AppEvent.RESIZE, event -> {
+            if(resize()) {
+                App.LOGGER.log("success: "+event.getEventType());
+                Controller.getInstance().setHasChanged(true);
+            } else {
+                App.LOGGER.log("fail: "+event.getEventType());
+            }
+        });
+
+        eventBus.addEventHandler(AppEvent.PIXEL_SCALE, event -> {
+            if(pixelScale()) {
                 App.LOGGER.log("success: "+event.getEventType());
                 Controller.getInstance().setHasChanged(true);
             } else {
@@ -65,8 +74,14 @@ public class ImageActionProvider implements ImageAction {
     }
     
     @Override
-    public boolean scale() {
-        App.LOGGER.log("flip image vertically here..");
-        return Controller.getInstance().displayScaleDialog();
+    public boolean resize() {
+        App.LOGGER.log("resize image here..");
+        return Controller.getInstance().displayResizeDialog();
+    }
+
+    @Override
+    public boolean pixelScale() {
+        App.LOGGER.log("resize image here..");
+        return Controller.getInstance().displayPixelScaleDialog();
     }
 }

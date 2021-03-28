@@ -43,7 +43,39 @@ public class ConvertImage {
     return SwingFXUtils.toFXImage(biRGB, null);
   }
 
-  public static Image scale(Image image, double scale) {
+
+  /**
+   * Re-scale all the pixel values of an image, stored in a matrix.
+   * 
+   * @param image
+   * @param scalar
+   * @return
+   */
+  public static Image pixelScale(Image image, double scalar){
+    int width = (int) image.getWidth();
+    int height = (int) image.getHeight();
+    int[][][] imageArray = toArray(image);
+
+    // pixel scaling operation
+    for (int y = 0; y < height; y++) {
+      for (int x = 0; x < width; x++) {
+        for(int i = 1; i <= 3; i++) {
+          imageArray[x][y][i] = (int) Util.clamp(imageArray[x][y][i] * scalar, 0, 255); 
+        }
+      }
+    }
+    
+    return fromArray(imageArray);
+  }
+
+  /**
+   * Resize the given image by a scalar factor
+   * using a naive nearest neighbour algorithm.
+   * @param image
+   * @param scale
+   * @return
+   */
+  public static Image resize(Image image, double scale) {
     int width = (int) image.getWidth();
     int height = (int) image.getHeight();
     int[][][] imageArray = toArray(image);

@@ -4,5 +4,6 @@ public interface ImageAction{
     boolean filterNegative();
     boolean flipHorizontal();
     boolean flipVertical();
-    boolean scale();
+    boolean resize();
+    boolean pixelScale();
 }

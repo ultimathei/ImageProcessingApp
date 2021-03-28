@@ -164,29 +164,64 @@ public class Controller implements ImageManipulationController {
     return view.updateFilteredImage(model.setImageFiltered(newImg));
   }
 
-
-  public boolean displayScaleDialog() {
-    SliderDialog dialog = new SliderDialog(mainStage, "Scale amount", model.getCurrentScale());
+  /**
+   * 
+   * @return
+   */
+  public boolean displayPixelScaleDialog() {
+    SliderDialog dialog = new SliderDialog(mainStage, "Pixel scale amount", 1.0);
     Optional<Double> result = dialog.showAndWait();
     try{
-      result.ifPresent(this::transformScale);
-      double response = dialog.getResult();
-      App.LOGGER.log("dialog result: "+response);
-      return true;
+      result.ifPresent(this::pixelScale);
+      return dialog.getResult() != null;
     } catch (Exception e) {
       App.LOGGER.log(e.getMessage());
     }
     return false;
   }
 
-  public boolean transformScale(double scale) {
+  /**
+   * 
+   * @param scale
+   * @return
+   */
+  public boolean pixelScale(double scale) {
+    Image image = model.getImageFiltered();
+    if (image == null)
+      return false;
+    Image newImg = ConvertImage.pixelScale(image, scale);
+    return view.updateFilteredImage(model.setImageFiltered(newImg));
+  }
+
+  /**
+   * 
+   * @return
+   */
+  public boolean displayResizeDialog() {
+    SliderDialog dialog = new SliderDialog(mainStage, "Scale amount", model.getCurrentScale());
+    Optional<Double> result = dialog.showAndWait();
+    try{
+      result.ifPresent(this::transformResize);
+      return dialog.getResult() != null;
+    } catch (Exception e) {
+      App.LOGGER.log(e.getMessage());
+    }
+    return false;
+  }
+
+  /**
+   * 
+   * @param scale
+   * @return
+   */
+  public boolean transformResize(double scale) {
     double newScale = Util.clamp(scale, 0.1, 2.0);
     Image image = model.getImageFiltered();
     double currentScale = model.getCurrentScale();
 
     if(currentScale != newScale) {
       App.LOGGER.log("old height: "+image.getHeight());
-      Image newImg = ConvertImage.scale(image, newScale / currentScale);
+      Image newImg = ConvertImage.resize(image, newScale / currentScale);
       App.LOGGER.log("new height: "+newImg.getHeight());
       model.setCurrentScale(newScale);
       return view.updateFilteredImage(model.setImageFiltered(newImg));

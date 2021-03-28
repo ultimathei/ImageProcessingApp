@@ -34,8 +34,11 @@ public class AppEvent extends Event {
     public static final EventType<AppEvent> FLIP_VERTICAL
         = new EventType<>(ANY, "Flip vetically");
     
-    public static final EventType<AppEvent> SCALE
-        = new EventType<>(ANY, "Scale");
+    public static final EventType<AppEvent> RESIZE
+        = new EventType<>(ANY, "Resize");
+
+    public static final EventType<AppEvent> PIXEL_SCALE
+        = new EventType<>(ANY, "Pixel scale");
 
     public AppEvent(EventType<AppEvent> type) {
         super(type);
