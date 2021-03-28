@@ -2,6 +2,7 @@ package app.mvc.controllers;
 
 import app.App;
 import app.utils.ConvertImage;
+import app.utils.SliderDialog;
 import app.utils.Util;
 import app.mvc.models.*;
 import app.mvc.View;
@@ -13,7 +14,6 @@ import java.util.ArrayList;
 import java.util.Optional;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
-import javafx.scene.control.TextInputDialog;
 import javafx.scene.image.Image;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -166,17 +166,12 @@ public class Controller implements ImageManipulationController {
 
 
   public boolean displayScaleDialog() {
-    TextInputDialog dialog = new TextInputDialog("walter");
-    dialog.setTitle("Text Input Dialog");
-    dialog.setHeaderText("Enter scale amount");
-    dialog.setContentText("Scale amount:");
-    Optional<String> result = dialog.showAndWait();
+    SliderDialog dialog = new SliderDialog(mainStage, "Scale amount", model.getCurrentScale());
+    Optional<Double> result = dialog.showAndWait();
     try{
-      result.ifPresent(amount -> {
-        App.LOGGER.log("Your input: " + amount);
-        double factor = Double.parseDouble(amount);
-        transformScale(factor);
-      });
+      result.ifPresent(this::transformScale);
+      double response = dialog.getResult();
+      App.LOGGER.log("dialog result: "+response);
       return true;
     } catch (Exception e) {
       App.LOGGER.log(e.getMessage());
@@ -185,15 +180,15 @@ public class Controller implements ImageManipulationController {
   }
 
   public boolean transformScale(double scale) {
-    double clampedScale = Util.clamp(scale, 0.0, 2.0);
+    double newScale = Util.clamp(scale, 0.1, 2.0);
     Image image = model.getImageFiltered();
     double currentScale = model.getCurrentScale();
 
-    if(currentScale != clampedScale) {
+    if(currentScale != newScale) {
       App.LOGGER.log("old height: "+image.getHeight());
-      Image newImg = ConvertImage.scale(image, clampedScale * model.getCurrentScale());
+      Image newImg = ConvertImage.scale(image, newScale / currentScale);
       App.LOGGER.log("new height: "+newImg.getHeight());
-      model.setCurrentScale(clampedScale);
+      model.setCurrentScale(newScale);
       return view.updateFilteredImage(model.setImageFiltered(newImg));
     }
     return false;
@@ -221,10 +216,7 @@ public class Controller implements ImageManipulationController {
     mainStage.setMinHeight(model.getViewerHeight());
     mainStage.setMinWidth(model.getViewerWidth());
     mainStage.setResizable(false);
-    mainStage.addEventHandler(
-        WindowEvent.WINDOW_CLOSE_REQUEST, 
-        window -> closeWindowEventHandler(window)
-    );
+    mainStage.addEventHandler(WindowEvent.WINDOW_CLOSE_REQUEST, this::closeWindowEventHandler);
   }
 
   public void setHasChanged(boolean state) {
