@@ -18,7 +18,7 @@ public enum Model {
     private boolean hasChanged = false;
 
     // List of supported image formats
-    private String[] formats = { "bmp", "gif", "jpeg", "jpg", "png" };
+    private String[] formats = { "bmp", "gif", "tif", "jpeg", "jpg", "png" };
 
     // option index for
     private int opIndex = 0;
@@ -29,6 +29,8 @@ public enum Model {
     private int appWidth = 512;
     private int appHeight = 512;
     private int paddingSize  = 10;
+
+    private String originalImgType;
     // The input image saved as a javafx image object
     private Image imageOriginal;
     // The modified image saved as a javafx image object
@@ -56,6 +58,10 @@ public enum Model {
 
     public int getLastOpIndex() {
         return lastOp;
+    }
+
+    public String getOriginalImgType() {
+        return originalImgType;
     }
 
     public Image getImageOriginal() {
@@ -90,6 +96,10 @@ public enum Model {
 
     public void setLastOpIndex(int i) {
         lastOp = i;
+    }
+
+    public void setOriginalImgType(String type) {
+        originalImgType = type;
     }
 
     public Image setImageOriginal(Image newImage) {

@@ -11,10 +11,13 @@ import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.Optional;
 
-import javafx.scene.ImageCursor;
+import javax.imageio.IIOException;
+
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.image.Image;
+import javafx.scene.image.PixelFormat;
+import javafx.scene.image.PixelReader;
 import javafx.stage.FileChooser;
 import javafx.stage.WindowEvent;
 import javafx.stage.FileChooser.ExtensionFilter;
@@ -22,7 +25,7 @@ import javafx.stage.FileChooser.ExtensionFilter;
 /**
  * Singleton class to represent the controller (of MVC) of the Application
  */
-public class Controller implements ImageManipulationController{
+public class Controller implements ImageManipulationController {
   private static Controller instance = null;
   private Model model;
   private View view;
@@ -62,10 +65,23 @@ public class Controller implements ImageManipulationController{
     fileChooser.setTitle("Open an image file");
     fileChooser.getExtensionFilters().add(new ExtensionFilter("Image Files", extensions));
     File selectedFile = fileChooser.showOpenDialog(view.getWindow());
+    Image image;
 
     try {
-      Image image = new Image(new FileInputStream(selectedFile));
+      image = new Image(new FileInputStream(selectedFile));
+
+      // test if the javafx image was not constructed correctly
+      if (image.isError()) {
+        // some file types are not supported by javafx's Image class
+        image = ConvertImage.toJavafx(selectedFile);
+        if(image == null) throw new IIOException("");
+      }
+      
       view.setNewOriginalimage(model.setImageFiltered(model.setImageOriginal(image)));
+      String fileName = selectedFile.getName();
+      String fileExtension = fileName.substring(fileName.lastIndexOf(".") + 1, fileName.length());
+      model.setOriginalImgType(fileExtension);
+
       return true;
     } catch (Exception e) {
       App.LOGGER.log("Image not found or corrupt file");
@@ -75,6 +91,7 @@ public class Controller implements ImageManipulationController{
 
   /**
    * Check if the application is safe to quit (from menu quit)
+   * 
    * @return
    */
   public boolean canIQuit() {
@@ -85,44 +102,45 @@ public class Controller implements ImageManipulationController{
   public void closeWindowEventHandler(WindowEvent event) {
     App.LOGGER.log("Wants to close the window..");
 
-    if(model.getHasChanged()) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.getButtonTypes().remove(ButtonType.OK);
-        alert.getButtonTypes().add(ButtonType.CANCEL);
-        alert.getButtonTypes().add(ButtonType.YES);
-        // add save button here..
-        // ..
-        alert.setTitle("Closing with unsaved changes");
-        alert.setContentText("Close without saving?");
-        alert.initOwner(view.getWindow());
+    if (model.getHasChanged()) {
+      Alert alert = new Alert(Alert.AlertType.INFORMATION);
+      alert.getButtonTypes().remove(ButtonType.OK);
+      alert.getButtonTypes().add(ButtonType.CANCEL);
+      alert.getButtonTypes().add(ButtonType.YES);
+      // add save button here..
+      // ..
+      alert.setTitle("Closing with unsaved changes");
+      alert.setContentText("Close without saving?");
+      alert.initOwner(view.getWindow());
 
-        Optional<ButtonType> res = alert.showAndWait();
+      Optional<ButtonType> res = alert.showAndWait();
 
-        if(res.isPresent()) {
-            if(res.get().equals(ButtonType.CANCEL)) {
-              App.LOGGER.log("Returning to the app");
-              event.consume();
-            } else {
-              App.LOGGER.log("Closing app without saving. Good bye!");
-            }
-
-            // add save option here
-            // ..
+      if (res.isPresent()) {
+        if (res.get().equals(ButtonType.CANCEL)) {
+          App.LOGGER.log("Returning to the app");
+          event.consume();
+        } else {
+          App.LOGGER.log("Closing app without saving. Good bye!");
         }
+
+        // add save option here
+        // ..
+      }
     } else {
       App.LOGGER.log("Closing app. Good bye!");
     }
-}
+  }
 
   // -- IMAGE MANIPULATION --
 
   public boolean filterNegative() {
     Image image = model.getImageFiltered();
-    if(image == null) return false;
+    if (image == null)
+      return false;
     Image newImg = ConvertImage.nagative(image);
     return view.updateFilteredImage(model.setImageFiltered(newImg));
   }
-  
+
   // -- GETTERS --
 
   /**

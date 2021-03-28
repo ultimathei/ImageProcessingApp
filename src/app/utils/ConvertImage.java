@@ -1,9 +1,14 @@
 package app.utils;
 
+import java.awt.Graphics;
+import java.awt.image.*;
+import java.io.File;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
+import javax.imageio.ImageIO;
 
 /**
  * A utility class for image conversions
@@ -12,6 +17,29 @@ public class ConvertImage {
   // private constructor to hide implicit public one
   private ConvertImage() {
     //
+  }
+
+  /**
+   * Read in File as bufferedImage, then convert to type_int_rgb
+   * finally convert to javafx image
+   * @param selectedFile a File object to be converted to Image object
+   * @return the file converted to javafx Image
+   *         or null if there was an error during load or conversion
+   */
+  public static Image toJavafx(File selectedFile) {
+    try {
+      BufferedImage bi = ImageIO.read(selectedFile);
+      int w = bi.getWidth();
+      int h = bi.getHeight();
+  
+      BufferedImage biRGB = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
+      Graphics big = biRGB.getGraphics();
+      big.drawImage(bi, 0, 0, null);
+  
+      return SwingFXUtils.toFXImage(biRGB, null); 
+    } catch (Exception e) {
+      return null;
+    }
   }
 
   /**
