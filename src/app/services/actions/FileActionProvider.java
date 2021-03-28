@@ -18,26 +18,26 @@ public class FileActionProvider implements FileAction {
 
         eventBus.addEventHandler(AppEvent.OPEN, event -> {
             if(open()) {
-                App.LOGGER.log("image openned successfully!");
+                App.LOGGER.log("success: "+event.getEventType());
             } else {
-                App.LOGGER.log("image could not be openned!");
+                App.LOGGER.log("fail: "+event.getEventType());
             }
         });
 
         eventBus.addEventHandler(AppEvent.SAVE, event -> {
             if(save()) {
-                App.LOGGER.log("image saved successfully!");
+                App.LOGGER.log("success: "+event.getEventType());
             } else {
-                App.LOGGER.log("image could not be saved!");
+                App.LOGGER.log("fail: "+event.getEventType());
             }
         });
         
         eventBus.addEventHandler(AppEvent.QUIT, event -> {
             if(quit()) {
-                App.LOGGER.log("application quit successfully!");
+                App.LOGGER.log("success: "+event.getEventType());
                 Platform.exit();
             } else {
-                App.LOGGER.log("application could not be quit!");
+                App.LOGGER.log("fail: "+event.getEventType());
             }
         });
     }

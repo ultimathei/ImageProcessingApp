@@ -40,6 +40,34 @@ public class ConvertImage {
       return SwingFXUtils.toFXImage(biRGB, null); 
   }
 
+
+  /**
+   * Transform image to be flipped
+   * if vertically is true, the flip happens along the vertical axis
+   * else along the horizontal axis
+   * @param image
+   * @param vertically
+   * @return
+   */
+  public static Image flip(Image image, boolean vertically) {
+    int width = (int) image.getWidth();
+    int height = (int) image.getHeight();
+
+    // Convert the image to array
+    int[][][] imageArray = toArray(image);
+    int[][][] flippedImgArray = new int[width][height][3];
+
+    for (int y = 0; y < height; y++) {
+      for (int x = 0; x < width; x++) {
+        if(vertically) flippedImgArray[x][y] = imageArray[x][height-y-1];
+        else flippedImgArray[x][y] = imageArray[width-x-1][y];
+      }
+    }
+
+    // Convert the array to Image and return
+    return fromArray(flippedImgArray);
+  }
+
   /**
    * Image Negative filter First converts the input Image object to a 3D integer
    * array then performs the negative operation on the array finally converts the
@@ -48,7 +76,7 @@ public class ConvertImage {
    * @param img the original image to be filtered
    * @return the result of the filter operation
    */
-  public static Image nagative(Image image) {
+  public static Image negative(Image image) {
     int width = (int) image.getWidth();
     int height = (int) image.getHeight();
 

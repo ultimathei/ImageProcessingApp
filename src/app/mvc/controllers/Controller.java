@@ -136,7 +136,23 @@ public class Controller implements ImageManipulationController {
     Image image = model.getImageFiltered();
     if (image == null)
       return false;
-    Image newImg = ConvertImage.nagative(image);
+    Image newImg = ConvertImage.negative(image);
+    return view.updateFilteredImage(model.setImageFiltered(newImg));
+  }
+
+  public boolean transformFlipHorizontal() {
+    Image image = model.getImageFiltered();
+    if (image == null)
+      return false;
+    Image newImg = ConvertImage.flip(image, false);
+    return view.updateFilteredImage(model.setImageFiltered(newImg));
+  }
+
+  public boolean transformFlipVetical() {
+    Image image = model.getImageFiltered();
+    if (image == null)
+      return false;
+    Image newImg = ConvertImage.flip(image, true);
     return view.updateFilteredImage(model.setImageFiltered(newImg));
   }
 

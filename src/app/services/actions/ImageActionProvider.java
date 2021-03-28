@@ -11,17 +11,25 @@ public class ImageActionProvider implements ImageAction {
 
         eventBus.addEventHandler(AppEvent.NEGATIVE, event -> {
             if(filterNegative()) {
-                App.LOGGER.log("image negated successfully!");
+                App.LOGGER.log("success: "+event.getEventType());
             } else {
-                App.LOGGER.log("image could not be negated!");
+                App.LOGGER.log("fail: "+event.getEventType());
             }
         });
 
         eventBus.addEventHandler(AppEvent.FLIP_HORIZONTAL, event -> {
             if(flipHorizontal()) {
-                App.LOGGER.log("image flipped horizontally!");
+                App.LOGGER.log("success: "+event.getEventType());
             } else {
-                App.LOGGER.log("image could not be flipped!");
+                App.LOGGER.log("fail: "+event.getEventType());
+            }
+        });
+        
+        eventBus.addEventHandler(AppEvent.FLIP_VERTICAL, event -> {
+            if(flipVertical()) {
+                App.LOGGER.log("success: "+event.getEventType());
+            } else {
+                App.LOGGER.log("fail: "+event.getEventType());
             }
         });
     }
@@ -35,6 +43,12 @@ public class ImageActionProvider implements ImageAction {
     @Override
     public boolean flipHorizontal() {
         App.LOGGER.log("flip image horizontally here..");
-        return true;
+        return Controller.getInstance().transformFlipHorizontal();
+    }
+
+    @Override
+    public boolean flipVertical() {
+        App.LOGGER.log("flip image vertically here..");
+        return Controller.getInstance().transformFlipVetical();
     }
 }

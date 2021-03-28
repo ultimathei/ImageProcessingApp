@@ -35,9 +35,9 @@ public enum MenuModel {
    */
   private List<Pair<String, EventType<AppEvent>>> assembleFileMenu() {
     List<Pair<String, EventType<AppEvent>>> list = new ArrayList<>();
-    list.add(new Pair<>("Open", AppEvent.OPEN));
-    list.add(new Pair<>("Save", AppEvent.SAVE));
-    list.add(new Pair<>("Quit", AppEvent.QUIT));
+    list.add(new Pair<>(AppEvent.OPEN.getName(), AppEvent.OPEN));
+    list.add(new Pair<>(AppEvent.SAVE.getName(), AppEvent.SAVE));
+    list.add(new Pair<>(AppEvent.QUIT.getName(), AppEvent.QUIT));
     return list;
   }
 
@@ -48,8 +48,8 @@ public enum MenuModel {
    */
   private List<Pair<String, EventType<AppEvent>>> assembleEditMenu() {
     List<Pair<String, EventType<AppEvent>>> list = new ArrayList<>();
-    list.add(new Pair<>("Undo", AppEvent.UNDO));
-    list.add(new Pair<>("Redo", AppEvent.REDO));
+    list.add(new Pair<>(AppEvent.UNDO.getName(), AppEvent.UNDO));
+    list.add(new Pair<>(AppEvent.REDO.getName(), AppEvent.REDO));
     return list;
   }
 
@@ -60,8 +60,9 @@ public enum MenuModel {
    */
   private List<Pair<String, EventType<AppEvent>>> assembleFiltersMenu() {
     List<Pair<String, EventType<AppEvent>>> list = new ArrayList<>();
-    list.add(new Pair<>("Negative", AppEvent.NEGATIVE));
-    list.add(new Pair<>("Flip Horizontally", AppEvent.FLIP_HORIZONTAL));
+    list.add(new Pair<>(AppEvent.NEGATIVE.getName(), AppEvent.NEGATIVE));
+    list.add(new Pair<>(AppEvent.FLIP_HORIZONTAL.getName(), AppEvent.FLIP_HORIZONTAL));
+    list.add(new Pair<>(AppEvent.FLIP_VERTICAL.getName(), AppEvent.FLIP_VERTICAL));
     return list;
   }
 }

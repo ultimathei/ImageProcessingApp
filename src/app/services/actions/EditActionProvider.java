@@ -9,11 +9,19 @@ public class EditActionProvider implements EditAction {
         EventBus eventBus = ServiceLocator.INSTANCE.getService(EventBus.class);
 
         eventBus.addEventHandler(AppEvent.UNDO, event -> {
-            boolean success = undo();
+            if(undo()){
+                App.LOGGER.log("success: "+event.getEventType());
+            } else {
+                App.LOGGER.log("fail: "+event.getEventType());
+            }
         });
 
         eventBus.addEventHandler(AppEvent.REDO, event -> {
-            boolean success = redo();
+            if(redo()){
+                App.LOGGER.log("success: "+event.getEventType());
+            } else {
+                App.LOGGER.log("fail: "+event.getEventType());
+            }
         });
     }
 

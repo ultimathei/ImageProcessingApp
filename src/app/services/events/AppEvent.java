@@ -8,28 +8,31 @@ public class AppEvent extends Event {
     
     // first define Any event, the super event
     public static final EventType<AppEvent> ANY 
-        = new EventType<>(Event.ANY, "FILE_EVENT");
+        = new EventType<>(Event.ANY, "GENERIC_EVENT");
 
     public static final EventType<AppEvent> OPEN
-        = new EventType<>(ANY, "OPEN");
+        = new EventType<>(ANY, "Open file");
     
     public static final EventType<AppEvent> SAVE
-        = new EventType<>(ANY, "SAVE");
+        = new EventType<>(ANY, "Save file");
 
     public static final EventType<AppEvent> QUIT
-        = new EventType<>(ANY, "QUIT");
+        = new EventType<>(ANY, "Quit");
 
     public static final EventType<AppEvent> UNDO
-        = new EventType<>(ANY, "UNDO");
+        = new EventType<>(ANY, "Undo");
 
     public static final EventType<AppEvent> REDO
-        = new EventType<>(ANY, "REDO");
+        = new EventType<>(ANY, "Redo");
 
     public static final EventType<AppEvent> NEGATIVE
-        = new EventType<>(ANY, "NEGATIVE");
+        = new EventType<>(ANY, "Negative");
     
     public static final EventType<AppEvent> FLIP_HORIZONTAL
-        = new EventType<>(ANY, "FLIP_HORIZONTAL");
+        = new EventType<>(ANY, "Flip horizontally");
+
+    public static final EventType<AppEvent> FLIP_VERTICAL
+        = new EventType<>(ANY, "Flip vetically");
 
     public AppEvent(EventType<AppEvent> type) {
         super(type);
