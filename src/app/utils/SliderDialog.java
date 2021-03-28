@@ -1,5 +1,6 @@
 package app.utils;
 
+import app.App;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Pos;
 import javafx.scene.control.ButtonBar;
@@ -21,7 +22,7 @@ public class SliderDialog<T extends Number> extends Dialog<T> {
   private Slider slider;
   private TextField numberField;
 
-  public SliderDialog(Stage primaryStage, String title, T value) {
+  public SliderDialog(Stage primaryStage, String title, T value, double min, double max) {
     super();
     initOwner(primaryStage);
     initStyle(StageStyle.UNDECORATED);
@@ -31,19 +32,18 @@ public class SliderDialog<T extends Number> extends Dialog<T> {
     root.setTop(new Label(title));
 
     slider = new Slider();
-    slider.setMin(0.1);
-    slider.setMax(2.0);
+    slider.setMin(min);
+    slider.setMax(max);
     slider.setShowTickLabels(true);
     slider.setShowTickMarks(true);
     slider.setMinorTickCount(1);
-    slider.setBlockIncrement(0.1);
     slider.setSnapToTicks(true);
     slider.valueProperty().bindBidirectional((SimpleObjectProperty<Number>) sliderValue);
     makeSpecificities(value);
 
     numberField = new TextField();
     numberField.setText(slider.getValue() + "");
-    numberField.textProperty().bind(sliderValue.asString("%.2f"));
+    numberField.textProperty().bind(sliderValue.asString());
 
     VBox vbox = new VBox(slider);
     vbox.setAlignment(Pos.CENTER);
@@ -58,24 +58,26 @@ public class SliderDialog<T extends Number> extends Dialog<T> {
     
     this.setResultConverter(button -> {
       if (button == setBtnType) {
-        return (T) (Double) Util.round((Double) sliderValue.getValue(), 2);
+        return (T) (Number) Util.round(((Number) sliderValue.getValue()).doubleValue(), 2);
       }
       return null;
     });
   }
 
-  private void makeSpecificities(T value) throws ClassCastException {
+  private void makeSpecificities(T value) {
     try{
       if (value instanceof Double) {
         slider.setValue((Double) value);
         slider.setMajorTickUnit(0.1);
+        slider.setBlockIncrement(0.1);
       } else if (value instanceof Integer) {
-        slider.setValue((int) value);
+        slider.setValue(Integer.valueOf(value+""));
         slider.setMajorTickUnit(1);
-        // numberField.textProperty().bind(sliderValue.asString("%d"));
+        slider.setBlockIncrement(1);
       }
     }catch (Exception e) {
-      //
+      App.LOGGER.log("Couldn't make SliderPopup..");
+      e.printStackTrace();
     }
   }
 }

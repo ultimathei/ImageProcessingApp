@@ -12,8 +12,6 @@ import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javax.imageio.ImageIO;
 
-import app.App;
-
 /**
  * A utility class for image conversions
  */
@@ -60,7 +58,8 @@ public class ConvertImage {
     for (int y = 0; y < height; y++) {
       for (int x = 0; x < width; x++) {
         for(int i = 1; i <= 3; i++) {
-          imageArray[x][y][i] = (int) Util.clamp(imageArray[x][y][i] + amount, 0, 255); 
+          int val = imageArray[x][y][i] + amount;
+          imageArray[x][y][i] = Util.clamp(val, 0, 255); 
         }
       }
     }

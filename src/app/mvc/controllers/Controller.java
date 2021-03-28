@@ -4,6 +4,7 @@ import app.App;
 import app.utils.ConvertImage;
 import app.utils.SliderDialog;
 import app.utils.Util;
+import app.services.memento.Originator;
 import app.mvc.models.*;
 import app.mvc.View;
 import app.services.actions.*;
@@ -11,6 +12,8 @@ import app.services.events.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Optional;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
@@ -19,19 +22,27 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import javafx.stage.FileChooser.ExtensionFilter;
+import javafx.util.Pair;
 
 /**
- * Singleton class to represent the controller (of MVC) of the Application
+ * Singleton class to represent the controller (of MVC) of the Application.
+ * Also being used as the Caretaker for the memento pattern.
  */
 public class Controller implements ImageManipulationController {
   private static Controller instance = null;
   private Stage mainStage;
   private Model model;
   private View view;
+  private List<Originator.Memento> history;
+  private int historyIndex;
+  private Originator originator;
 
   // -- SINGLETON CONSTRUCTOR --
   private Controller() {
     registerServices();
+    history = new LinkedList<>();
+    historyIndex = 0;
+    originator = new Originator();
     model = Model.INSTANCE;
     view = View.getInstance();
   }
@@ -190,17 +201,22 @@ public class Controller implements ImageManipulationController {
    * @return
    */
   public boolean displayPixelShiftDialog() {
-    // if (model.getImageFiltered() == null)
-    //   return false;
-    // SliderDialog dialog = new SliderDialog(mainStage, "Pixel shift amount", 1.0);
-    // Optional<Double> result = dialog.showAndWait();
-    // try {
-    //   result.ifPresent(this::pixelShift);
-    //   return dialog.getResult() != null;
-    // } catch (Exception e) {
-    //   App.LOGGER.log(e.getMessage());
-    // }
-    return false;
+    if(model.getImageFiltered() == null)
+      return false;
+    SliderDialog<Number> dialog = new SliderDialog<>(mainStage, "Pixel shift amount", 1.0, 0.0, 255.0);
+    Optional<Number> result = dialog.showAndWait();
+    try {
+      result.ifPresent(value -> middleman(value.intValue()));
+      App.LOGGER.log("!!!!!!!!!!!"+dialog.getResult());
+      return true;
+    } catch (Exception e) {
+      App.LOGGER.log("error in shifter !!!"+e.getMessage());
+      return false;
+    }
+  }
+
+  public boolean middleman(Number num) {
+    return pixelShift(num.intValue());
   }
 
   /**
@@ -210,7 +226,7 @@ public class Controller implements ImageManipulationController {
   public boolean displayPixelScaleDialog() {
     if (model.getImageFiltered() == null)
       return false;
-    SliderDialog<Double> dialog = new SliderDialog<>(mainStage, "Pixel scale amount", 1.0);
+    SliderDialog<Double> dialog = new SliderDialog<>(mainStage, "Pixel scale amount", 1.0, 0.1, 2.0);
     Optional<Double> result = dialog.showAndWait();
     try {
       result.ifPresent(value -> pixelScale(value));
@@ -228,10 +244,10 @@ public class Controller implements ImageManipulationController {
   public boolean displayResizeDialog() {
     if (model.getImageFiltered() == null)
       return false;
-    SliderDialog<Double> dialog = new SliderDialog<>(mainStage, "Scale amount", model.getCurrentScale());
+    SliderDialog<Double> dialog = new SliderDialog<>(mainStage, "Scale amount", model.getCurrentScale(), 0.1, 2.0);
     Optional<Double> result = dialog.showAndWait();
     try {
-      result.ifPresent(this::transformResize);
+      result.ifPresent(value -> transformResize(value));
       return dialog.getResult() != null;
     } catch (Exception e) {
       App.LOGGER.log(e.getMessage());
@@ -317,6 +333,21 @@ public class Controller implements ImageManipulationController {
   public void setCurrentScale(double scale) {
     model.setCurrentScale(scale);
   }
+
+
+  // HISTORY -- NOT SURE YET
+  public void pushToHistory(String actionName) {
+    originator.set(new Pair<>(actionName, model));
+    history.add(originator.saveToMemento());
+    historyIndex++;
+  }
+
+  public void undo() {
+    // set model to the one from history
+    originator.restoreFromMemento(history.get(historyIndex));
+  }
+
+  // END of HISTORY :)
 
   /**
    * Registers the services/events This is needed so all (and only the registered)

@@ -65,6 +65,7 @@ public enum MenuModel {
     list.add(new Pair<>(AppEvent.FLIP_VERTICAL.getName(), AppEvent.FLIP_VERTICAL));
     list.add(new Pair<>(AppEvent.RESIZE.getName(), AppEvent.RESIZE));
     list.add(new Pair<>(AppEvent.PIXEL_SCALE.getName(), AppEvent.PIXEL_SCALE));
+    list.add(new Pair<>(AppEvent.PIXEL_SHIFT.getName(), AppEvent.PIXEL_SHIFT));
     return list;
   }
 }

@@ -1,10 +1,12 @@
 package app.services.actions;
 
+import javafx.event.Event;
+
 public interface ImageAction{
-    boolean filterNegative();
-    boolean flipHorizontal();
-    boolean flipVertical();
-    boolean resize();
-    boolean pixelScale();
-    boolean pixelShift();
+    void filterNegative(Event event);
+    void flipHorizontal(Event event);
+    void flipVertical(Event event);
+    void resize(Event event);
+    void pixelScale(Event event);
+    void pixelShift(Event event);
 }

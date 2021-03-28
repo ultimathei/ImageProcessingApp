@@ -40,6 +40,9 @@ public class AppEvent extends Event {
     public static final EventType<AppEvent> PIXEL_SCALE
         = new EventType<>(ANY, "Pixel scale");
 
+    public static final EventType<AppEvent> PIXEL_SHIFT
+        = new EventType<>(ANY, "Pixel shift");
+
     public AppEvent(EventType<AppEvent> type) {
         super(type);
     }    
