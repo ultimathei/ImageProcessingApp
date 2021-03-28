@@ -23,13 +23,15 @@ public enum Model {
     private int viewerWidth = 512;
     private int viewerHeight = 512;
 
-    private int paddingSize = 10;
+    private int paddingSize = 20;
 
     private String originalImgType;
     // The input image saved as a javafx image object
     private Image imageOriginal;
     // The modified image saved as a javafx image object
     private Image imageFiltered;
+    // the current scale of the filtered image
+    private double currentScale = 1.0;
 
     // ACTION HISTORY
 
@@ -98,6 +100,9 @@ public enum Model {
         return hasChanged;
     }
 
+    public double getCurrentScale() {
+        return currentScale;
+    }
 
 
     // -- SETTERS --
@@ -134,5 +139,11 @@ public enum Model {
 
     public void setHasChanged(boolean state) {
         hasChanged = state;
+    }
+
+    public boolean setCurrentScale(double newScale) {
+        if(newScale == currentScale) return false;
+        currentScale = newScale;
+        return true;
     }
 }

@@ -128,13 +128,14 @@ public class View extends Scene {
      */
     private HBox makeSplitView() {
         HBox box = new HBox();
-        box.setPadding(new Insets(model.getPaddingSize()));
-
         box.getChildren().addAll(
             makeImageView("image-view-original", model.getImageOriginal()), 
             makeImageView("image-view-filtered", model.getImageFiltered())
         );
         box.setBackground(new Background(new BackgroundFill(Color.LIGHTGRAY, null, null)));
+        box.setPadding(new Insets(model.getPaddingSize()));
+        box.setAlignment(Pos.CENTER);
+        box.setSpacing(10);
         return box;
     }
 
@@ -144,19 +145,25 @@ public class View extends Scene {
      * @param image
      * @return
      */
-    private ImageView makeImageView(String id, Image image) {
+    private ScrollPane makeImageView(String id, Image image) {
+
         // display imageView and add original image inside
         ImageView iv = new ImageView();
         if (image != null) {
             iv.setImage(image);
         }
-        iv.setFitWidth(model.getViewerWidth());
-        iv.setFitHeight(model.getViewerHeight());
         iv.setPreserveRatio(true);
         iv.setSmooth(true);
         iv.setCache(true);
         iv.setId(id);
-        return iv;
+
+        double w = model.getViewerWidth() + 3.0;
+        double h = model.getViewerHeight() + 3.0;
+        ScrollPane scroll = new ScrollPane();
+        scroll.setContent(iv);
+        scroll.setMaxSize(w, h);
+        scroll.setMinSize(w, h);
+        return scroll;
     }
 
     /**

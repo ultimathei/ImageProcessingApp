@@ -33,6 +33,9 @@ public class AppEvent extends Event {
 
     public static final EventType<AppEvent> FLIP_VERTICAL
         = new EventType<>(ANY, "Flip vetically");
+    
+    public static final EventType<AppEvent> SCALE
+        = new EventType<>(ANY, "Scale");
 
     public AppEvent(EventType<AppEvent> type) {
         super(type);

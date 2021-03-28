@@ -2,6 +2,7 @@ package app.mvc.controllers;
 
 import app.App;
 import app.utils.ConvertImage;
+import app.utils.Util;
 import app.mvc.models.*;
 import app.mvc.View;
 import app.services.actions.*;
@@ -12,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Optional;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.image.Image;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -162,6 +164,41 @@ public class Controller implements ImageManipulationController {
     return view.updateFilteredImage(model.setImageFiltered(newImg));
   }
 
+
+  public boolean displayScaleDialog() {
+    TextInputDialog dialog = new TextInputDialog("walter");
+    dialog.setTitle("Text Input Dialog");
+    dialog.setHeaderText("Enter scale amount");
+    dialog.setContentText("Scale amount:");
+    Optional<String> result = dialog.showAndWait();
+    try{
+      result.ifPresent(amount -> {
+        App.LOGGER.log("Your input: " + amount);
+        double factor = Double.parseDouble(amount);
+        transformScale(factor);
+      });
+      return true;
+    } catch (Exception e) {
+      App.LOGGER.log(e.getMessage());
+    }
+    return false;
+  }
+
+  public boolean transformScale(double scale) {
+    double clampedScale = Util.clamp(scale, 0.0, 2.0);
+    Image image = model.getImageFiltered();
+    double currentScale = model.getCurrentScale();
+
+    if(currentScale != clampedScale) {
+      App.LOGGER.log("old height: "+image.getHeight());
+      Image newImg = ConvertImage.scale(image, clampedScale * model.getCurrentScale());
+      App.LOGGER.log("new height: "+newImg.getHeight());
+      model.setCurrentScale(clampedScale);
+      return view.updateFilteredImage(model.setImageFiltered(newImg));
+    }
+    return false;
+  }
+
   // -- GETTERS --
 
   /**
@@ -194,6 +231,9 @@ public class Controller implements ImageManipulationController {
     model.setHasChanged(state);
   }
 
+  public void setCurrentScale(double scale) {
+    model.setCurrentScale(scale);
+  }
 
   /**
    * Registers the services/events This is needed so all (and only the registered)

@@ -18,6 +18,7 @@ public class FileActionProvider implements FileAction {
         eventBus.addEventHandler(AppEvent.OPEN, event -> {
             if(open()) {
                 App.LOGGER.log("success: "+event.getEventType());
+                Controller.getInstance().setCurrentScale(1.0);
             } else {
                 App.LOGGER.log("fail: "+event.getEventType());
             }

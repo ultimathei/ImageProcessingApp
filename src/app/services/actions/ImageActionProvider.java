@@ -35,6 +35,15 @@ public class ImageActionProvider implements ImageAction {
                 App.LOGGER.log("fail: "+event.getEventType());
             }
         });
+        
+        eventBus.addEventHandler(AppEvent.SCALE, event -> {
+            if(scale()) {
+                App.LOGGER.log("success: "+event.getEventType());
+                Controller.getInstance().setHasChanged(true);
+            } else {
+                App.LOGGER.log("fail: "+event.getEventType());
+            }
+        });
     }
 
     @Override
@@ -53,5 +62,11 @@ public class ImageActionProvider implements ImageAction {
     public boolean flipVertical() {
         App.LOGGER.log("flip image vertically here..");
         return Controller.getInstance().transformFlipVetical();
+    }
+    
+    @Override
+    public boolean scale() {
+        App.LOGGER.log("flip image vertically here..");
+        return Controller.getInstance().displayScaleDialog();
     }
 }

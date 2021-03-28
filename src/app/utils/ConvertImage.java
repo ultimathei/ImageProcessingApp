@@ -12,6 +12,8 @@ import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javax.imageio.ImageIO;
 
+import app.App;
+
 /**
  * A utility class for image conversions
  */
@@ -22,29 +24,62 @@ public class ConvertImage {
   }
 
   /**
-   * Read in File as bufferedImage, then convert to type_int_rgb
-   * finally convert to javafx image
+   * Read in File as bufferedImage, then convert to type_int_rgb finally convert
+   * to javafx image
+   * 
    * @param selectedFile a File object to be converted to Image object
-   * @return the file converted to javafx Image
-   *         or null if there was an error during load or conversion
+   * @return the file converted to javafx Image or null if there was an error
+   *         during load or conversion
    */
-  public static Image toJavafx(File selectedFile) throws IOException{
-      BufferedImage bi = ImageIO.read(selectedFile);
-      int w = bi.getWidth();
-      int h = bi.getHeight();
-  
-      BufferedImage biRGB = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
-      Graphics big = biRGB.getGraphics();
-      big.drawImage(bi, 0, 0, null);
-  
-      return SwingFXUtils.toFXImage(biRGB, null); 
+  public static Image toJavafx(File selectedFile) throws IOException {
+    BufferedImage bi = ImageIO.read(selectedFile);
+    int w = bi.getWidth();
+    int h = bi.getHeight();
+
+    BufferedImage biRGB = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
+    Graphics big = biRGB.getGraphics();
+    big.drawImage(bi, 0, 0, null);
+
+    return SwingFXUtils.toFXImage(biRGB, null);
   }
 
+  public static Image scale(Image image, double scale) {
+    int width = (int) image.getWidth();
+    int height = (int) image.getHeight();
+    int[][][] imageArray = toArray(image);
+
+    int newWidth = (int)(width * scale);
+    int newHeight = (int)(height * scale);
+
+    // App.LOGGER.log("new height: "+newHeight);
+    // App.LOGGER.log("new width: "+newWidth);
+
+    int[][][] newImgArray = new int[newWidth][newHeight][4];
+
+    // nearest neighbour
+    for (int y = 0; y < newHeight; y++) {
+      for (int x = 0; x < newWidth; x++) {
+          int normalisedX;
+          int normalisedY;
+          if(scale < 1.0) {
+            normalisedX = (int) (x/scale);
+            normalisedY = (int) (y/scale);
+          } else {
+            normalisedX = (int) (x/scale);
+            normalisedY = (int) (y/scale);
+          }
+          
+          newImgArray[x][y] = imageArray[normalisedX][normalisedY];
+      }
+    }
+
+    return fromArray(newImgArray);
+  }
 
   /**
-   * Transform image to be flipped
-   * if vertically is true, the flip happens along the vertical axis
-   * else along the horizontal axis
+   * Transform image to be flipped if vertically is true, the flip happens along
+   * the vertical axis else along the horizontal axis
+   * 
    * @param image
    * @param vertically
    * @return
@@ -59,8 +94,10 @@ public class ConvertImage {
 
     for (int y = 0; y < height; y++) {
       for (int x = 0; x < width; x++) {
-        if(vertically) flippedImgArray[x][y] = imageArray[x][height-y-1];
-        else flippedImgArray[x][y] = imageArray[width-x-1][y];
+        if (vertically)
+          flippedImgArray[x][y] = imageArray[x][height - y - 1];
+        else
+          flippedImgArray[x][y] = imageArray[width - x - 1][y];
       }
     }
 
