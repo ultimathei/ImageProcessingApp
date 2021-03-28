@@ -14,6 +14,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.image.Image;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import javafx.stage.FileChooser.ExtensionFilter;
 
@@ -22,6 +23,7 @@ import javafx.stage.FileChooser.ExtensionFilter;
  */
 public class Controller implements ImageManipulationController {
   private static Controller instance = null;
+  private Stage mainStage;
   private Model model;
   private View view;
 
@@ -160,6 +162,23 @@ public class Controller implements ImageManipulationController {
    */
   public View getView() {
     return view;
+  }
+
+  /**
+   * Preparing the main stage of the app
+   * @param primaryStage
+   */
+  public void setMainStage(Stage primaryStage) {
+    mainStage = primaryStage;
+    mainStage.setTitle(App.APP_NAME);
+    mainStage.setScene(view);
+    mainStage.setMinHeight(model.getViewerHeight());
+    mainStage.setMinWidth(model.getViewerWidth());
+    mainStage.setResizable(false);
+    mainStage.addEventHandler(
+        WindowEvent.WINDOW_CLOSE_REQUEST, 
+        window -> closeWindowEventHandler(window)
+    );
   }
 
   /**

@@ -103,8 +103,8 @@ public class View extends Scene {
     private ScrollPane makeCanvas(String id) {
         // usinga stack pane to better position
         StackPane wrapPane = new StackPane();
-        double w = model.getAppWidth() * 2.0 + (model.getPaddingSize() * 2.0);
-        double h = model.getAppHeight() + (model.getPaddingSize() * 2.0);
+        double w = (double) model.getCanvasWidth();
+        double h = (double) model.getCanvasHeight();
         wrapPane.setPrefSize(w,h);
         wrapPane.setMinSize(w,h);
 
@@ -150,8 +150,8 @@ public class View extends Scene {
         if (image != null) {
             iv.setImage(image);
         }
-        iv.setFitWidth(model.getAppWidth());
-        iv.setFitHeight(model.getAppHeight());
+        iv.setFitWidth(model.getViewerWidth());
+        iv.setFitHeight(model.getViewerHeight());
         iv.setPreserveRatio(true);
         iv.setSmooth(true);
         iv.setCache(true);

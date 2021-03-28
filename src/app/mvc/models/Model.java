@@ -20,8 +20,9 @@ public enum Model {
     private String[] formats = { "bmp", "gif", "tif", "jpeg", "jpg", "png" };
 
     // The width and height of the app
-    private int appWidth = 512;
-    private int appHeight = 512;
+    private int viewerWidth = 512;
+    private int viewerHeight = 512;
+
     private int paddingSize = 10;
 
     private String originalImgType;
@@ -74,12 +75,19 @@ public enum Model {
         return imageFiltered;
     }
 
-    public int getAppWidth() {
-        return appWidth;
+    public int getViewerWidth() {
+        return viewerWidth;
     }
 
-    public int getAppHeight() {
-        return appHeight;
+    public int getCanvasWidth() {
+        return ( getViewerWidth() + getPaddingSize() ) * 2;
+    }
+    public int getCanvasHeight() {
+        return getViewerHeight() + getPaddingSize() * 2;
+    }
+
+    public int getViewerHeight() {
+        return viewerHeight;
     }
 
     public int getPaddingSize() {
@@ -114,12 +122,12 @@ public enum Model {
         return imageFiltered;
     }
 
-    public void setAppWidth(int w) {
-        appWidth = w;
+    public void setViewerWidth(int w) {
+        viewerWidth = w;
     }
 
-    public void setAppHeight(int h) {
-        appHeight = h;
+    public void setViewerHeight(int h) {
+        viewerHeight = h;
     }
 
     public void setHasChanged(boolean state) {

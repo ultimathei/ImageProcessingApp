@@ -4,7 +4,6 @@ import app.mvc.controllers.Controller;
 import app.utils.AppLogger;
 import javafx.application.Application;
 import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
 
 /**
  * @author Mate Krisztian
@@ -36,15 +35,7 @@ public class App extends Application {
      * @Override start method in Application class
      */
     public void start(Stage primaryStage) {
-        primaryStage.setTitle(APP_NAME);
-        primaryStage.setScene(Controller.getInstance().getView());
-        primaryStage.setMinHeight(512.0 + (10.0 * 2));
-        primaryStage.setMinWidth(512.0 * 2 + (10.0 * 2));
-        primaryStage.setResizable(false);
-        primaryStage.addEventHandler(
-            WindowEvent.WINDOW_CLOSE_REQUEST, 
-            window -> Controller.getInstance().closeWindowEventHandler(window)
-        );
+        Controller.getInstance().setMainStage(primaryStage);
         primaryStage.show();
     }
 }
