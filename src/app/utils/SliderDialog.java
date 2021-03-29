@@ -1,7 +1,8 @@
 package app.utils;
 
-import app.App;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.Pos;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
@@ -14,19 +15,19 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
-public class SliderDialog<T extends Number> extends Dialog<T> {
+public class SliderDialog extends Dialog<Double> {
   private BorderPane root;
   private ButtonType setBtnType;
   private ButtonType closeBtnType;
-  private SimpleObjectProperty<T> sliderValue;
+  private SimpleDoubleProperty sliderValue;
   private Slider slider;
   private TextField numberField;
 
-  public SliderDialog(Stage primaryStage, String title, T value, double min, double max) {
+  public SliderDialog(Stage primaryStage, String title, double value, double min, double max, int decimals) {
     super();
     initOwner(primaryStage);
     initStyle(StageStyle.UNDECORATED);
-    sliderValue = new SimpleObjectProperty<>(value);
+    sliderValue = new SimpleDoubleProperty(value);
 
     root = new BorderPane();
     root.setTop(new Label(title));
@@ -36,14 +37,23 @@ public class SliderDialog<T extends Number> extends Dialog<T> {
     slider.setMax(max);
     slider.setShowTickLabels(true);
     slider.setShowTickMarks(true);
-    slider.setMinorTickCount(1);
+    slider.setMinorTickCount(0);
     slider.setSnapToTicks(true);
-    slider.valueProperty().bindBidirectional((SimpleObjectProperty<Number>) sliderValue);
-    makeSpecificities(value);
+    slider.valueProperty().bindBidirectional(sliderValue);
+    slider.setValue(Util.round(value, decimals));
+    slider.setMajorTickUnit(Math.pow(0.1, decimals));
+    // slider.setBlockIncrement(1);
 
     numberField = new TextField();
-    numberField.setText(slider.getValue() + "");
+    numberField.setText(Util.round(slider.getValue(), decimals) + "");
     numberField.textProperty().bind(sliderValue.asString());
+
+    // numberField.textProperty()
+    //     .addListener((ObservableValue<? extends String> observable, String oldValue, String newValue) -> {
+    //       if (!newValue.matches("\\d{0,3}([\\.]\\d{0,2})?")) {
+    //         numberField.setText(oldValue);
+    //       }
+    //     });
 
     VBox vbox = new VBox(slider);
     vbox.setAlignment(Pos.CENTER);
@@ -55,29 +65,12 @@ public class SliderDialog<T extends Number> extends Dialog<T> {
     setBtnType = new ButtonType("Set", ButtonBar.ButtonData.APPLY);
     closeBtnType = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
     getDialogPane().getButtonTypes().addAll(closeBtnType, setBtnType);
-    
+
     this.setResultConverter(button -> {
       if (button == setBtnType) {
-        return (T) (Number) Util.round(((Number) sliderValue.getValue()).doubleValue(), 2);
+        return Util.round((sliderValue.getValue()).doubleValue(), decimals);
       }
       return null;
     });
-  }
-
-  private void makeSpecificities(T value) {
-    try{
-      if (value instanceof Double) {
-        slider.setValue((Double) value);
-        slider.setMajorTickUnit(0.1);
-        slider.setBlockIncrement(0.1);
-      } else if (value instanceof Integer) {
-        slider.setValue(Integer.valueOf(value+""));
-        slider.setMajorTickUnit(1);
-        slider.setBlockIncrement(1);
-      }
-    }catch (Exception e) {
-      App.LOGGER.log("Couldn't make SliderPopup..");
-      e.printStackTrace();
-    }
   }
 }

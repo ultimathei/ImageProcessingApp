@@ -203,11 +203,10 @@ public class Controller implements ImageManipulationController {
   public boolean displayPixelShiftDialog() {
     if(model.getImageFiltered() == null)
       return false;
-    SliderDialog<Number> dialog = new SliderDialog<>(mainStage, "Pixel shift amount", 1.0, 0.0, 255.0);
-    Optional<Number> result = dialog.showAndWait();
+    SliderDialog dialog = new SliderDialog(mainStage, "Pixel shift amount", 1, -255.0, 255.0, 0);
+    Optional<Double> result = dialog.showAndWait();
     try {
       result.ifPresent(value -> middleman(value.intValue()));
-      App.LOGGER.log("!!!!!!!!!!!"+dialog.getResult());
       return true;
     } catch (Exception e) {
       App.LOGGER.log("error in shifter !!!"+e.getMessage());
@@ -215,8 +214,8 @@ public class Controller implements ImageManipulationController {
     }
   }
 
-  public boolean middleman(Number num) {
-    return pixelShift(num.intValue());
+  public boolean middleman(int num) {
+    return pixelShift(num);
   }
 
   /**
@@ -226,7 +225,7 @@ public class Controller implements ImageManipulationController {
   public boolean displayPixelScaleDialog() {
     if (model.getImageFiltered() == null)
       return false;
-    SliderDialog<Double> dialog = new SliderDialog<>(mainStage, "Pixel scale amount", 1.0, 0.1, 2.0);
+    SliderDialog dialog = new SliderDialog(mainStage, "Pixel scale amount", 1.0, 0.1, 2.0, 2);
     Optional<Double> result = dialog.showAndWait();
     try {
       result.ifPresent(value -> pixelScale(value));
@@ -244,7 +243,7 @@ public class Controller implements ImageManipulationController {
   public boolean displayResizeDialog() {
     if (model.getImageFiltered() == null)
       return false;
-    SliderDialog<Double> dialog = new SliderDialog<>(mainStage, "Scale amount", model.getCurrentScale(), 0.1, 2.0);
+    SliderDialog dialog = new SliderDialog(mainStage, "Scale amount", model.getCurrentScale(), 0.1, 2.0, 2);
     Optional<Double> result = dialog.showAndWait();
     try {
       result.ifPresent(value -> transformResize(value));
