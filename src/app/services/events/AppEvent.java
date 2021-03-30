@@ -43,6 +43,15 @@ public class AppEvent extends Event {
     public static final EventType<AppEvent> PIXEL_SHIFT
         = new EventType<>(ANY, "Pixel shift");
 
+    public static final EventType<AppEvent> ZOOM_IN
+        = new EventType<>(ANY, "Zoom in");
+    
+    public static final EventType<AppEvent> ZOOM_OUT
+        = new EventType<>(ANY, "Zoom out");
+
+    public static final EventType<AppEvent> ZOOM_RESET
+        = new EventType<>(ANY, "Zoom reset");
+
     public AppEvent(EventType<AppEvent> type) {
         super(type);
     }    

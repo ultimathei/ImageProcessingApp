@@ -300,6 +300,20 @@ public class Controller implements ImageManipulationController {
     return view.updateFilteredImage(model.setImageFiltered(newImg));
   }
 
+
+  public boolean zoomIn() {
+    view.zoomInCanvas();
+    return true;
+  }
+  public boolean zoomOut() {
+    view.zoomOutCanvas();
+    return true;
+  }
+  public boolean zoomReset() {
+    view.resetZoomCanvas();
+    return true;
+  }
+
   // -- GETTERS --
 
   /**

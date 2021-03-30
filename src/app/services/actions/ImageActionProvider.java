@@ -16,6 +16,9 @@ public class ImageActionProvider implements ImageAction {
         eventBus.addEventHandler(AppEvent.RESIZE, this::resize);
         eventBus.addEventHandler(AppEvent.PIXEL_SCALE, this::pixelScale);
         eventBus.addEventHandler(AppEvent.PIXEL_SHIFT, this::pixelShift);
+        eventBus.addEventHandler(AppEvent.ZOOM_IN, this::zoomIn);
+        eventBus.addEventHandler(AppEvent.ZOOM_OUT, this::zoomOut);
+        eventBus.addEventHandler(AppEvent.ZOOM_RESET, this::zoomReset);
     }
 
     @Override
@@ -77,6 +80,39 @@ public class ImageActionProvider implements ImageAction {
     public void pixelShift(Event event) {
         App.LOGGER.log("pixel shift image here..");
         if(Controller.getInstance().displayPixelShiftDialog()){
+            App.LOGGER.log("success: " + event.getEventType());
+            Controller.getInstance().setHasChanged(true);
+        } else {
+            App.LOGGER.log("fail: " + event.getEventType());
+        }
+    }
+
+    @Override
+    public void zoomIn(Event event) {
+        App.LOGGER.log("zoom in canvas here..");
+        if(Controller.getInstance().zoomIn()){
+            App.LOGGER.log("success: " + event.getEventType());
+            Controller.getInstance().setHasChanged(true);
+        } else {
+            App.LOGGER.log("fail: " + event.getEventType());
+        }
+    }
+
+    @Override
+    public void zoomOut(Event event) {
+        App.LOGGER.log("zoom out canvas here..");
+        if(Controller.getInstance().zoomOut()){
+            App.LOGGER.log("success: " + event.getEventType());
+            Controller.getInstance().setHasChanged(true);
+        } else {
+            App.LOGGER.log("fail: " + event.getEventType());
+        }
+    }
+
+    @Override
+    public void zoomReset(Event event) {
+        App.LOGGER.log("zoom reset canvas here..");
+        if(Controller.getInstance().zoomReset()){
             App.LOGGER.log("success: " + event.getEventType());
             Controller.getInstance().setHasChanged(true);
         } else {

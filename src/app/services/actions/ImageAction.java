@@ -9,4 +9,7 @@ public interface ImageAction{
     void resize(Event event);
     void pixelScale(Event event);
     void pixelShift(Event event);
+    void zoomIn(Event event);
+    void zoomOut(Event event);
+    void zoomReset(Event event);
 }

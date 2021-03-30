@@ -27,7 +27,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.Node;
+import javafx.scene.transform.Scale;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -40,6 +40,8 @@ public class View extends Scene {
     private EventBus eventBus;
     private static BorderPane root = new BorderPane();
     private Model model;
+    StackPane zoomableCanvas;
+    ScrollPane scroll;
 
     // singleton -- private constructor
     private View() {
@@ -51,7 +53,8 @@ public class View extends Scene {
         model = Model.INSTANCE;
 
         root.setTop(makeMenuBar("app__menu", model.getMenuStructure()));
-        root.setCenter(makeCanvas("app__canvas"));
+        scroll = makeCanvas2("app__canvas");
+        root.setCenter(scroll);
         root.setRight(makeSidePane("app__sidepane"));
     }
 
@@ -148,35 +151,35 @@ public class View extends Scene {
         editPane.setBorder(new Border(new BorderStroke(Color.web(ColorPalette.DARK_GREY), 
             BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(0.25))));
 
+        Button btn = makeControlButton("Zoom in", AppEvent.ZOOM_IN);
+        Button btn2 = makeControlButton("Zoom out", AppEvent.ZOOM_OUT);
+        Button btn3 = makeControlButton("Zoom reset", AppEvent.ZOOM_RESET);
+        editPane.getChildren().addAll(btn, btn2, btn3);
+
         return editPane;
     }
 
+    public void zoomInCanvas(){
+        zoomableCanvas.getTransforms().add(new Scale(1.2, 1.2, 0, 0));
+    }
+    public void zoomOutCanvas(){
+        zoomableCanvas.getTransforms().add(new Scale(0.8, 0.8, 0, 0));
+    }
+    public void resetZoomCanvas(){
+        zoomableCanvas.getTransforms().add(new Scale(1, 1, 0, 0));
+    }
 
-
-    /**
-     * 
-     * @param id
-     * @return
-     */
-    private ScrollPane makeCanvas(String id) {
-        // usinga stack pane to better position
-        StackPane wrapPane = new StackPane();
-        double w = (double) model.getCanvasWidth();
-        double h = (double) model.getCanvasHeight();
-        wrapPane.setPrefSize(w,h);
-        wrapPane.setMinSize(w,h);
-
-        // make the canvas
-        HBox hb = makeSplitView();
-        wrapPane.getChildren().add(hb);
-        wrapPane.setBackground(new Background(new BackgroundFill(Color.AZURE, null, null)));
-        StackPane.setAlignment(hb, Pos.CENTER);
-
-        ScrollPane scroll = new ScrollPane();
+    public ScrollPane makeCanvas2(String id) {
+        scroll = new ScrollPane();
         scroll.setId(id);
-        scroll.setContent(wrapPane);
-        scroll.setFitToHeight(true);
-        scroll.setFitToWidth(true);
+        
+        zoomableCanvas = new StackPane();
+        zoomableCanvas.setMinSize(5000, 5000);
+        zoomableCanvas.setMaxSize(5000, 5000);
+        zoomableCanvas.setBackground(new Background(new BackgroundFill(Color.AZURE, null, null)));
+        zoomableCanvas.getChildren().add(makeSplitView());
+
+        scroll.setContent(zoomableCanvas);
 
         return scroll;
     }
@@ -195,7 +198,7 @@ public class View extends Scene {
         );
         box.setBackground(new Background(new BackgroundFill(Color.LIGHTGRAY, null, null)));
         box.setPadding(new Insets(model.getPaddingSize()));
-        box.setAlignment(Pos.CENTER);
+        box.setAlignment(Pos.TOP_LEFT);
         box.setSpacing(10);
         return box;
     }
@@ -207,7 +210,6 @@ public class View extends Scene {
      * @return
      */
     private ScrollPane makeImageView(String id, Image image) {
-
         // display imageView and add original image inside
         ImageView iv = new ImageView();
         if (image != null) {
