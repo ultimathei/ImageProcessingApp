@@ -6,9 +6,9 @@ import app.utils.SliderDialog;
 import app.utils.Util;
 import app.services.memento.Originator;
 import app.mvc.models.*;
-import app.mvc.Layer;
-import app.mvc.LayerStack;
-import app.mvc.View;
+import app.mvc.models.Layer;
+import app.mvc.models.LayerStack;
+import app.mvc.views.View;
 import app.services.actions.*;
 import app.services.events.*;
 import java.io.File;
@@ -17,6 +17,8 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
+
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.image.Image;
@@ -38,12 +40,17 @@ public class Controller implements ImageManipulationController {
   private List<Originator.Memento> history;
   private int historyIndex;
   private Originator originator;
+  // the currently selected layer on the layer stack panel
+  private int activeLayerIndex; // update this with the layer component?
+  private LayerStack layerstack;
 
   // -- SINGLETON CONSTRUCTOR --
   private Controller() {
     registerServices();
     history = new LinkedList<>();
     historyIndex = 0;
+    activeLayerIndex = 0;
+    layerstack = LayerStack.getInstance();
     originator = new Originator();
     model = Model.INSTANCE;
     view = View.getInstance();
@@ -56,16 +63,11 @@ public class Controller implements ImageManipulationController {
     return instance;
   }
 
-  public boolean loadDefaultImage() {
-    return openImage("/Users/ultimathei/macDocs/code_local/ImageProcessingApp/src/images/Barbara.bmp");
-  }
-
-  // -- FILE --
-
-  // the currently selected layer on the layer stack panel
-  private int activeLayerIndex = 0; // update this with the layer component
-  private LayerStack layerstack = LayerStack.getInstance();
-
+  /**
+   * FILTER method
+   * 
+   * @return
+   */
   public boolean filter() {
     if (layerstack.size() < 1)
       return false;
@@ -76,7 +78,7 @@ public class Controller implements ImageManipulationController {
     if (img == null)
       return false;
 
-    // testing only with negative
+    // testing only with negative filter now
     Image newImg = ConvertImage.negative(img);
 
     // should save previous filtered state to history?
@@ -86,8 +88,13 @@ public class Controller implements ImageManipulationController {
     return true;
   }
 
-  public void setActiveIndex() {
-    //
+  /**
+   * LOAD FILE from path
+   * 
+   * @return
+   */
+  public boolean loadDefaultImage() {
+    return openImage("/Users/ultimathei/macDocs/code_local/ImageProcessingApp/src/images/Barbara.bmp");
   }
 
   /**
@@ -128,10 +135,9 @@ public class Controller implements ImageManipulationController {
 
       view.setNewOriginalimage(model.setImageFiltered(model.setImageOriginal(image)));
       String fileName = selectedFile.getName();
-      String fileExtension = fileName.substring(fileName.lastIndexOf(".") + 1,
-      fileName.length());
+      String fileExtension = fileName.substring(fileName.lastIndexOf(".") + 1, fileName.length());
       model.setOriginalImgType(fileExtension);
-      
+
       // layerstack try
       // layerstack.add(new Layer(image));
 
@@ -250,16 +256,12 @@ public class Controller implements ImageManipulationController {
     SliderDialog dialog = new SliderDialog(mainStage, "Pixel shift amount", 1, -255.0, 255.0, 0);
     Optional<Double> result = dialog.showAndWait();
     try {
-      result.ifPresent(value -> middleman(value.intValue()));
-      return true;
+      result.ifPresent(this::pixelShift);
+      return dialog.getResult() != null;
     } catch (Exception e) {
       App.LOGGER.log("error in shifter !!!" + e.getMessage());
-      return false;
     }
-  }
-
-  public boolean middleman(int num) {
-    return pixelShift(num);
+    return false;
   }
 
   /**
@@ -272,7 +274,7 @@ public class Controller implements ImageManipulationController {
     SliderDialog dialog = new SliderDialog(mainStage, "Pixel scale amount", 1.0, 0.1, 2.0, 2);
     Optional<Double> result = dialog.showAndWait();
     try {
-      result.ifPresent(value -> pixelScale(value));
+      result.ifPresent(this::pixelScale);
       return dialog.getResult() != null;
     } catch (Exception e) {
       App.LOGGER.log(e.getMessage());
@@ -290,7 +292,7 @@ public class Controller implements ImageManipulationController {
     SliderDialog dialog = new SliderDialog(mainStage, "Scale amount", model.getCurrentScale(), 0.1, 2.0, 2);
     Optional<Double> result = dialog.showAndWait();
     try {
-      result.ifPresent(value -> transformResize(value));
+      result.ifPresent(this::transformResize);
       return dialog.getResult() != null;
     } catch (Exception e) {
       App.LOGGER.log(e.getMessage());
@@ -298,16 +300,37 @@ public class Controller implements ImageManipulationController {
     return false;
   }
 
+  // /**
+  //  * NOT USED CURRENTLY
+  //  * @param consumer
+  //  * @return
+  //  */
+  // public boolean displayDoubleDialog(Consumer<? super Double> consumer) {
+  //   if (model.getImageFiltered() == null)
+  //     return false;
+
+  //   SliderDialog dialog = new SliderDialog(mainStage, "Scale amount", model.getCurrentScale(), 0.1, 2.0, 2);
+  //   Optional<Double> result = dialog.showAndWait();
+  //   try {
+  //     result.ifPresent(consumer);
+  //     return dialog.getResult() != null;
+  //   } catch (Exception e) {
+  //     App.LOGGER.log(e.getMessage());
+  //   }
+  //   return false;
+  // }
+
   /**
    * 
    * @param scale
    * @return
    */
-  public boolean pixelShift(int amount) {
+  public boolean pixelShift(double amount) {
     Image image = model.getImageFiltered();
     if (image == null)
       return false;
-    Image newImg = ConvertImage.pixelShift(image, amount);
+    int intAmount = ((Double) amount).intValue();
+    Image newImg = ConvertImage.pixelShift(image, intAmount);
     return view.updateFilteredImage(model.setImageFiltered(newImg));
   }
 
@@ -335,6 +358,8 @@ public class Controller implements ImageManipulationController {
     return view.updateFilteredImage(model.setImageFiltered(newImg));
   }
 
+  // ZOOM
+
   public boolean zoomIn() {
     view.zoomInCanvas();
     return true;
@@ -348,17 +373,6 @@ public class Controller implements ImageManipulationController {
   public boolean zoomReset() {
     view.resetZoomCanvas();
     return true;
-  }
-
-  // -- GETTERS --
-
-  /**
-   * The only accesspoint to view is through the controller.
-   * 
-   * @return the singleton view object
-   */
-  public View getView() {
-    return view;
   }
 
   /**
@@ -376,22 +390,6 @@ public class Controller implements ImageManipulationController {
     mainStage.addEventHandler(WindowEvent.WINDOW_CLOSE_REQUEST, this::closeWindowEventHandler);
   }
 
-  /**
-   * 
-   * @param state
-   */
-  public void setHasChanged(boolean state) {
-    model.setHasChanged(state);
-  }
-
-  /**
-   * 
-   * @param scale
-   */
-  public void setCurrentScale(double scale) {
-    model.setCurrentScale(scale);
-  }
-
   // HISTORY -- NOT SURE YET
   public void pushToHistory(String actionName) {
     originator.set(new Pair<>(actionName, model));
@@ -406,6 +404,8 @@ public class Controller implements ImageManipulationController {
 
   // END of HISTORY :)
 
+  // -- PRIVATE METHODS --
+
   /**
    * Registers the services/events This is needed so all (and only the registered)
    * events in the app will be recognized.
@@ -415,5 +415,41 @@ public class Controller implements ImageManipulationController {
     ServiceLocator.INSTANCE.registerService(ImageAction.class, ImageActionProvider.class);
     ServiceLocator.INSTANCE.registerService(FileAction.class, FileActionProvider.class);
     ServiceLocator.INSTANCE.registerService(EditAction.class, EditActionProvider.class);
+  }
+
+  // -- GETTERS/SETTERS --
+
+  /**
+   * The only accesspoint to view is through the controller.
+   * 
+   * @return the singleton view object
+   */
+  public View getView() {
+    return view;
+  }
+
+  /**
+   * Change the currently active layer index
+   * 
+   * @param index
+   */
+  public void setActiveIndex(int index) {
+    activeLayerIndex = index;
+  }
+
+  /**
+   * 
+   * @param state
+   */
+  public void setHasChanged(boolean state) {
+    model.setHasChanged(state);
+  }
+
+  /**
+   * 
+   * @param scale
+   */
+  public void setCurrentScale(double scale) {
+    model.setCurrentScale(scale);
   }
 }

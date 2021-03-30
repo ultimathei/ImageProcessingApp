@@ -1,4 +1,4 @@
-package app.mvc;
+package app.mvc.models;
 
 import javafx.scene.image.Image;
 

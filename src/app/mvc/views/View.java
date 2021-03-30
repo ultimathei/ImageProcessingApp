@@ -1,4 +1,4 @@
-package app.mvc;
+package app.mvc.views;
 
 import app.App;
 import app.mvc.models.*;
