@@ -54,6 +54,10 @@ public class Controller implements ImageManipulationController {
     return instance;
   }
 
+  public boolean loadDefaultImage() {
+    return openImage("/Users/ultimathei/macDocs/code_local/ImageProcessingApp/src/images/Barbara.bmp");
+  }
+
   // -- FILE --
 
   /**
@@ -61,23 +65,28 @@ public class Controller implements ImageManipulationController {
    * successfully, an Image object is created with it, then the original file and
    * filtered file is updated in the model, then the new image is passed onto the
    * view to update the imageviews.
-   * 
+   * @param filePath an optional argument for the relative path to the file
    * @return true if the open and the view update was successful false otherwise
    */
-  public boolean openImage() {
-    // get the extensions from model, append *. to them and make a list
-    ArrayList<String> extensions = new ArrayList<>();
-    for (String ext : model.getFormats()) {
-      extensions.add("*." + ext);
-    }
-
-    FileChooser fileChooser = new FileChooser();
-    fileChooser.setTitle("Open an image file");
-    fileChooser.getExtensionFilters().add(new ExtensionFilter("Image Files", extensions));
-    File selectedFile = fileChooser.showOpenDialog(view.getWindow());
+  public boolean openImage(String filePath) {
+    File selectedFile;
     Image image;
-
+    
     try {
+      if(filePath!=null) {
+        selectedFile = new File(filePath);
+      } else {
+        // get the extensions from model, append *. to them and make a list
+        ArrayList<String> extensions = new ArrayList<>();
+        for (String ext : model.getFormats()) {
+          extensions.add("*." + ext);
+        }
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Open an image file");
+        fileChooser.getExtensionFilters().add(new ExtensionFilter("Image Files", extensions));
+        selectedFile = fileChooser.showOpenDialog(view.getWindow());
+      }
+    
       image = new Image(new FileInputStream(selectedFile));
 
       // test if the javafx image was not constructed correctly

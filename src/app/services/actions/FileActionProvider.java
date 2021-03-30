@@ -45,7 +45,7 @@ public class FileActionProvider implements FileAction {
     @Override
     public boolean open() {
         App.LOGGER.log("open image here..");
-        return Controller.getInstance().openImage();
+        return Controller.getInstance().openImage(null);
     }
     
     @Override
