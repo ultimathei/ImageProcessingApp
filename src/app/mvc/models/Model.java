@@ -33,6 +33,26 @@ public enum Model {
     // the current scale of the filtered image
     private double currentScale = 1.0;
 
+
+    // new display model
+    private Image activeImage;
+    private Image resultImage;
+    public Image getActiveImage(){
+        return activeImage;
+    }
+    public Image getResultImage(){
+        return resultImage;
+    }
+    public Image setActiveImage(Image img){
+        activeImage = img;
+        return activeImage;
+    }
+    public Image setResultImage(Image img){
+        activeImage = img;
+        return resultImage;
+    }
+
+
     // ACTION HISTORY
 
     // option index for

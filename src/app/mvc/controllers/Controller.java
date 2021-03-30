@@ -6,6 +6,8 @@ import app.utils.SliderDialog;
 import app.utils.Util;
 import app.services.memento.Originator;
 import app.mvc.models.*;
+import app.mvc.Layer;
+import app.mvc.LayerStack;
 import app.mvc.View;
 import app.services.actions.*;
 import app.services.events.*;
@@ -25,8 +27,8 @@ import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.util.Pair;
 
 /**
- * Singleton class to represent the controller (of MVC) of the Application.
- * Also being used as the Caretaker for the memento pattern.
+ * Singleton class to represent the controller (of MVC) of the Application. Also
+ * being used as the Caretaker for the memento pattern.
  */
 public class Controller implements ImageManipulationController {
   private static Controller instance = null;
@@ -60,20 +62,49 @@ public class Controller implements ImageManipulationController {
 
   // -- FILE --
 
+  // the currently selected layer on the layer stack panel
+  private int activeLayerIndex = 0; // update this with the layer component
+  private LayerStack layerstack = LayerStack.getInstance();
+
+  public boolean filter() {
+    if (layerstack.size() < 1)
+      return false;
+    Layer layer = layerstack.get(activeLayerIndex);
+    if (layer == null)
+      return false;
+    Image img = layer.getFilteredImg();
+    if (img == null)
+      return false;
+
+    // testing only with negative
+    Image newImg = ConvertImage.negative(img);
+
+    // should save previous filtered state to history?
+    Image result = layerstack.updateImage(activeLayerIndex, newImg);
+    model.setResultImage(result);
+
+    return true;
+  }
+
+  public void setActiveIndex() {
+    //
+  }
+
   /**
    * Open image file using a file chooser component. If the file was openned
    * successfully, an Image object is created with it, then the original file and
    * filtered file is updated in the model, then the new image is passed onto the
    * view to update the imageviews.
+   * 
    * @param filePath an optional argument for the relative path to the file
    * @return true if the open and the view update was successful false otherwise
    */
   public boolean openImage(String filePath) {
     File selectedFile;
     Image image;
-    
+
     try {
-      if(filePath!=null) {
+      if (filePath != null) {
         selectedFile = new File(filePath);
       } else {
         // get the extensions from model, append *. to them and make a list
@@ -86,7 +117,7 @@ public class Controller implements ImageManipulationController {
         fileChooser.getExtensionFilters().add(new ExtensionFilter("Image Files", extensions));
         selectedFile = fileChooser.showOpenDialog(view.getWindow());
       }
-    
+
       image = new Image(new FileInputStream(selectedFile));
 
       // test if the javafx image was not constructed correctly
@@ -97,8 +128,12 @@ public class Controller implements ImageManipulationController {
 
       view.setNewOriginalimage(model.setImageFiltered(model.setImageOriginal(image)));
       String fileName = selectedFile.getName();
-      String fileExtension = fileName.substring(fileName.lastIndexOf(".") + 1, fileName.length());
+      String fileExtension = fileName.substring(fileName.lastIndexOf(".") + 1,
+      fileName.length());
       model.setOriginalImgType(fileExtension);
+      
+      // layerstack try
+      // layerstack.add(new Layer(image));
 
       return true;
     } catch (Exception e) {
@@ -210,7 +245,7 @@ public class Controller implements ImageManipulationController {
    * @return
    */
   public boolean displayPixelShiftDialog() {
-    if(model.getImageFiltered() == null)
+    if (model.getImageFiltered() == null)
       return false;
     SliderDialog dialog = new SliderDialog(mainStage, "Pixel shift amount", 1, -255.0, 255.0, 0);
     Optional<Double> result = dialog.showAndWait();
@@ -218,7 +253,7 @@ public class Controller implements ImageManipulationController {
       result.ifPresent(value -> middleman(value.intValue()));
       return true;
     } catch (Exception e) {
-      App.LOGGER.log("error in shifter !!!"+e.getMessage());
+      App.LOGGER.log("error in shifter !!!" + e.getMessage());
       return false;
     }
   }
@@ -300,15 +335,16 @@ public class Controller implements ImageManipulationController {
     return view.updateFilteredImage(model.setImageFiltered(newImg));
   }
 
-
   public boolean zoomIn() {
     view.zoomInCanvas();
     return true;
   }
+
   public boolean zoomOut() {
     view.zoomOutCanvas();
     return true;
   }
+
   public boolean zoomReset() {
     view.resetZoomCanvas();
     return true;
@@ -355,7 +391,6 @@ public class Controller implements ImageManipulationController {
   public void setCurrentScale(double scale) {
     model.setCurrentScale(scale);
   }
-
 
   // HISTORY -- NOT SURE YET
   public void pushToHistory(String actionName) {
