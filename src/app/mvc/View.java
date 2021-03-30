@@ -27,6 +27,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
 import javafx.scene.transform.Scale;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
@@ -53,7 +54,7 @@ public class View extends Scene {
         model = Model.INSTANCE;
 
         root.setTop(makeMenuBar("app__menu", model.getMenuStructure()));
-        scroll = makeCanvas2("app__canvas");
+        scroll = makeCanvas("app__canvas");
         root.setCenter(scroll);
         root.setRight(makeSidePane("app__sidepane"));
     }
@@ -111,10 +112,10 @@ public class View extends Scene {
         sidePane.setId(id);
         sidePane.setPrefWidth(model.getSidePaneWidth());
         sidePane.setBackground(new Background(new BackgroundFill(Color.web("555555"), null, null)));
-        sidePane.setBorder(new Border(new BorderStroke(Color.web(ColorPalette.DARK_GREY), 
-            BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(0.25))));
+        sidePane.setBorder(new Border(new BorderStroke(Color.web(ColorPalette.DARK_GREY), BorderStrokeStyle.SOLID,
+                CornerRadii.EMPTY, new BorderWidths(0.25))));
 
-        sidePane.setTop(makeEditPane("app__edit-pane"));
+        sidePane.setTop(makeControls("app__controls-pane"));
         sidePane.setCenter(makeLayersPane("app__layers-pane"));
         return sidePane;
     }
@@ -124,14 +125,23 @@ public class View extends Scene {
         layersPane.setId(id);
         layersPane.setMinHeight(200);
         layersPane.setBackground(new Background(new BackgroundFill(Color.web(ColorPalette.MID_GREY), null, null)));
-        layersPane.setBorder(new Border(new BorderStroke(Color.web(ColorPalette.DARK_GREY), 
-            BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(0.25))));
-
+        layersPane.setBorder(new Border(new BorderStroke(Color.web(ColorPalette.DARK_GREY), BorderStrokeStyle.SOLID,
+                CornerRadii.EMPTY, new BorderWidths(0.25))));
 
         ScrollPane layers = new ScrollPane();
         layers.setBackground(new Background(new BackgroundFill(Color.web(ColorPalette.LIGHT_GREY), null, null)));
-        HBox layersList = new HBox();
+        layers.setFitToWidth(true);
+        VBox layersList = new VBox();
+        layersList.getChildren().addAll(
+            makeLayersListItem(), 
+            makeLayersListItem(), 
+            makeLayersListItem(), 
+            makeLayersListItem(), 
+            makeLayersListItem(), 
+            makeLayersListItem()
+        );
 
+        layers.setContent(layersList);
 
         VBox footer = new VBox();
         footer.setId("layers-pane__footer");
@@ -142,14 +152,34 @@ public class View extends Scene {
         layersPane.setBottom(footer);
         return layersPane;
     }
-    
-    private HBox makeEditPane(String id) {
+
+    private HBox makeLayersListItem() {
+        HBox layersListItem = new HBox();
+        layersListItem.setMinHeight(50);
+        layersListItem.setMaxHeight(50);
+        layersListItem.setPrefWidth(300);
+        layersListItem.setBorder(new Border(new BorderStroke(Color.web(ColorPalette.DARK_GREY), BorderStrokeStyle.SOLID,
+                CornerRadii.EMPTY, new BorderWidths(0.25))));
+
+        Text text = new Text("Test text");
+        
+        layersListItem.getChildren().addAll(text);
+        
+        return layersListItem;
+    }
+
+    /**
+     * Controls
+     * @param id
+     * @return
+     */
+    private HBox makeControls(String id) {
         HBox editPane = new HBox();
         editPane.setId(id);
         editPane.setMinHeight(200);
         editPane.setBackground(new Background(new BackgroundFill(Color.web("eeeeee"), null, null)));
-        editPane.setBorder(new Border(new BorderStroke(Color.web(ColorPalette.DARK_GREY), 
-            BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(0.25))));
+        editPane.setBorder(new Border(new BorderStroke(Color.web(ColorPalette.DARK_GREY), BorderStrokeStyle.SOLID,
+                CornerRadii.EMPTY, new BorderWidths(0.25))));
 
         Button btn = makeControlButton("Zoom in", AppEvent.ZOOM_IN);
         Button btn2 = makeControlButton("Zoom out", AppEvent.ZOOM_OUT);
@@ -159,20 +189,16 @@ public class View extends Scene {
         return editPane;
     }
 
-    public void zoomInCanvas(){
-        zoomableCanvas.getTransforms().add(new Scale(1.2, 1.2, 0, 0));
-    }
-    public void zoomOutCanvas(){
-        zoomableCanvas.getTransforms().add(new Scale(0.8, 0.8, 0, 0));
-    }
-    public void resetZoomCanvas(){
-        zoomableCanvas.getTransforms().add(new Scale(1, 1, 0, 0));
-    }
-
-    public ScrollPane makeCanvas2(String id) {
+    /**
+     * Canvas object
+     * @param id
+     * @return
+     */
+    public ScrollPane makeCanvas(String id) {
         scroll = new ScrollPane();
         scroll.setId(id);
-        
+        scroll.setPannable(true);
+
         zoomableCanvas = new StackPane();
         zoomableCanvas.setMinSize(5000, 5000);
         zoomableCanvas.setMaxSize(5000, 5000);
@@ -192,10 +218,8 @@ public class View extends Scene {
      */
     private HBox makeSplitView() {
         HBox box = new HBox();
-        box.getChildren().addAll(
-            makeImageView("image-view-original", model.getImageOriginal()), 
-            makeImageView("image-view-filtered", model.getImageFiltered())
-        );
+        box.getChildren().addAll(makeImageView("image-view-original", model.getImageOriginal()),
+                makeImageView("image-view-filtered", model.getImageFiltered()));
         box.setBackground(new Background(new BackgroundFill(Color.LIGHTGRAY, null, null)));
         box.setPadding(new Insets(model.getPaddingSize()));
         box.setAlignment(Pos.TOP_LEFT);
@@ -211,7 +235,12 @@ public class View extends Scene {
      */
     private ScrollPane makeImageView(String id, Image image) {
         // display imageView and add original image inside
-        ImageView iv = new ImageView();
+        ImageView iv = new ImageView(){
+            @Override
+            public void requestFocus() {
+                //
+            }
+        };
         if (image != null) {
             iv.setImage(image);
         }
@@ -222,7 +251,12 @@ public class View extends Scene {
 
         double w = model.getViewerWidth() + 3.0;
         double h = model.getViewerHeight() + 3.0;
-        ScrollPane scroll = new ScrollPane();
+        ScrollPane scroll = new ScrollPane() {
+            @Override
+            public void requestFocus() {
+                //
+            }
+        };
         scroll.setContent(iv);
         scroll.setMaxSize(w, h);
         scroll.setMinSize(w, h);
@@ -269,4 +303,19 @@ public class View extends Scene {
 
         return btn;
     }
+
+    // -- PUBLIC METHODS --
+
+    public void zoomInCanvas() {
+        zoomableCanvas.getTransforms().add(new Scale(1.2, 1.2, 0, 0));
+    }
+
+    public void zoomOutCanvas() {
+        zoomableCanvas.getTransforms().add(new Scale(0.8, 0.8, 0, 0));
+    }
+
+    public void resetZoomCanvas() {
+        zoomableCanvas.getTransforms().add(new Scale(1, 1, 0, 0));
+    }
+
 }
