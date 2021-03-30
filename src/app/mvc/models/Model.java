@@ -42,7 +42,14 @@ public enum Model {
     // unsaved changes indicator
     private boolean hasChanged = false;
 
+
+    private int sidePaneWidth = 200;
+
     // -- GETTERS --
+    public int getSidePaneWidth(){
+        return sidePaneWidth;
+    }
+
     // decorator to return menus List from menuModel
     public List<Pair<String, List<Pair<String, EventType<AppEvent>>>>> getMenuStructure() {
         return menuModel.getMenuStructure();

@@ -45,6 +45,7 @@ public class View extends Scene {
 
         root.setTop(makeMenuBar("app__menu", model.getMenuStructure()));
         root.setCenter(makeCanvas("app__canvas"));
+        root.setRight(makeSidePane("app__sidepane"));
     }
 
     // GETTER singletonn instance
@@ -94,6 +95,37 @@ public class View extends Scene {
     }
 
     // -- PRIVATE INSTANCE METHODS --
+
+    private BorderPane makeSidePane(String id) {
+        BorderPane sidePane = new BorderPane();
+        sidePane.setId(id);
+        sidePane.setPrefWidth(model.getSidePaneWidth());
+        sidePane.setBackground(new Background(new BackgroundFill(Color.web("555555"), null, null)));
+
+        sidePane.setTop(makeEditPane("app__edit-pane"));
+        sidePane.setCenter(makeLayersPane("app__layers-pane"));
+        return sidePane;
+    }
+
+    private HBox makeLayersPane(String id) {
+        HBox layersPane = new HBox();
+        layersPane.setMinHeight(200);
+        layersPane.setBackground(new Background(new BackgroundFill(Color.web("777777"), null, null)));
+        layersPane.setId(id);
+
+        return layersPane;
+    }
+    
+    private HBox makeEditPane(String id) {
+        HBox editPane = new HBox();
+        editPane.setMinHeight(200);
+        editPane.setBackground(new Background(new BackgroundFill(Color.web("eeeeee"), null, null)));
+        editPane.setId(id);
+
+        return editPane;
+    }
+
+
 
     /**
      * 
