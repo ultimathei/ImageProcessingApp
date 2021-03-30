@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Consumer;
 
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
