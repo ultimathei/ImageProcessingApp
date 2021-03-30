@@ -322,7 +322,7 @@ public class Controller implements ImageManipulationController {
     mainStage.setScene(view);
     mainStage.setMinHeight(model.getViewerHeight());
     mainStage.setMinWidth(model.getViewerWidth());
-    mainStage.setResizable(false);
+    mainStage.setResizable(true);
     mainStage.addEventHandler(WindowEvent.WINDOW_CLOSE_REQUEST, this::closeWindowEventHandler);
   }
 

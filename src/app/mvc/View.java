@@ -17,10 +17,17 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.BorderStroke;
+import javafx.scene.layout.BorderStrokeStyle;
+import javafx.scene.layout.BorderWidths;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -101,26 +108,45 @@ public class View extends Scene {
         sidePane.setId(id);
         sidePane.setPrefWidth(model.getSidePaneWidth());
         sidePane.setBackground(new Background(new BackgroundFill(Color.web("555555"), null, null)));
+        sidePane.setBorder(new Border(new BorderStroke(Color.web(ColorPalette.DARK_GREY), 
+            BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(0.25))));
 
         sidePane.setTop(makeEditPane("app__edit-pane"));
         sidePane.setCenter(makeLayersPane("app__layers-pane"));
         return sidePane;
     }
 
-    private HBox makeLayersPane(String id) {
-        HBox layersPane = new HBox();
-        layersPane.setMinHeight(200);
-        layersPane.setBackground(new Background(new BackgroundFill(Color.web("777777"), null, null)));
+    private BorderPane makeLayersPane(String id) {
+        BorderPane layersPane = new BorderPane();
         layersPane.setId(id);
+        layersPane.setMinHeight(200);
+        layersPane.setBackground(new Background(new BackgroundFill(Color.web(ColorPalette.MID_GREY), null, null)));
+        layersPane.setBorder(new Border(new BorderStroke(Color.web(ColorPalette.DARK_GREY), 
+            BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(0.25))));
 
+
+        ScrollPane layers = new ScrollPane();
+        layers.setBackground(new Background(new BackgroundFill(Color.web(ColorPalette.LIGHT_GREY), null, null)));
+        HBox layersList = new HBox();
+
+
+        VBox footer = new VBox();
+        footer.setId("layers-pane__footer");
+        footer.setMinHeight(30);
+        footer.setBackground(new Background(new BackgroundFill(Color.web(ColorPalette.DARK_GREY), null, null)));
+
+        layersPane.setCenter(layers);
+        layersPane.setBottom(footer);
         return layersPane;
     }
     
     private HBox makeEditPane(String id) {
         HBox editPane = new HBox();
+        editPane.setId(id);
         editPane.setMinHeight(200);
         editPane.setBackground(new Background(new BackgroundFill(Color.web("eeeeee"), null, null)));
-        editPane.setId(id);
+        editPane.setBorder(new Border(new BorderStroke(Color.web(ColorPalette.DARK_GREY), 
+            BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(0.25))));
 
         return editPane;
     }
@@ -147,8 +173,11 @@ public class View extends Scene {
         StackPane.setAlignment(hb, Pos.CENTER);
 
         ScrollPane scroll = new ScrollPane();
-        scroll.setContent(wrapPane);
         scroll.setId(id);
+        scroll.setContent(wrapPane);
+        scroll.setFitToHeight(true);
+        scroll.setFitToWidth(true);
+
         return scroll;
     }
 
