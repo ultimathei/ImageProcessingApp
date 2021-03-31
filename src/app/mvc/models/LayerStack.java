@@ -2,6 +2,10 @@ package app.mvc.models;
 
 import java.util.ArrayList;
 
+import app.App;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+
 /**
  * An ordered list like structure to store a list of Layer objects
  * To be used by layersPane to create a stack of images
@@ -11,21 +15,27 @@ public class LayerStack {
   // the singleton instance
   private static LayerStack instance;
   // an ordered list of Layers (the position of the Layer is the z-index)
-  private ArrayList<Layer> stack;
+  private ObservableList<Layer> stack;
   // active index is the marker of what layer is currently selected as th active.
   // the active layer's original image is shown, and all the imeg processing
   // modifications
   // are relevant to that layer's images
   private int activeLayerIndex = -1;
 
+  // -- PRIVATE CONSTRUCTOR --
   private LayerStack() {
-    stack = new ArrayList<>();
+    stack = FXCollections.observableArrayList();
   }
 
+  // instance getter
   public static LayerStack getInstance() {
     if (instance == null)
       instance = new LayerStack();
     return instance;
+  }
+
+  public ObservableList<Layer> getStack() {
+    return stack;
   }
 
   // getter for size of the stack
@@ -50,6 +60,7 @@ public class LayerStack {
     if (makeActive)
       activeLayerIndex = stack.size() - 1;
     // should also calculate the currentresult?
+    App.LOGGER.log("Layer added, stack size now: "+stack.size());
     return true;
   }
 
@@ -88,7 +99,14 @@ public class LayerStack {
 
   // update index or return -1
   public boolean updateActiveLayerIndexById(String id) {
-    return findLayerIndexFor(id) > -1;
+    int index = findLayerIndexFor(id);
+    if(index > -1) {
+      App.LOGGER.log("updating active index to: "+index);
+      activeLayerIndex = index;
+      return true;
+    } else {
+      return false;
+    }
   }
 
   // // recursively upwards

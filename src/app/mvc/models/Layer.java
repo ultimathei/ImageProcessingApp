@@ -63,6 +63,10 @@ public class Layer {
   public Image getBaseImg(){
     return baseImg;
   }
+  public Image setBaseImage(Image img) {
+    baseImg = img;
+    return baseImg;
+  }
   public Image getFilteredImg(){
     return filteredImg;
   }

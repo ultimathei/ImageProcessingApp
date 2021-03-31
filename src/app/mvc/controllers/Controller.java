@@ -18,6 +18,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.event.EventHandler;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.image.Image;
@@ -40,8 +43,6 @@ public class Controller implements ImageManipulationController {
   private int historyIndex;
   private Originator originator;
   // the currently selected layer on the layer stack panel
-  private int activeLayerIndex; // update this with the layer component?
-  private String activeLayerId;
   private LayerStack layerstack;
 
   // -- SINGLETON CONSTRUCTOR --
@@ -49,11 +50,12 @@ public class Controller implements ImageManipulationController {
     registerServices();
     history = new LinkedList<>();
     historyIndex = 0;
-    // activeLayerIndex = 0;
     layerstack = LayerStack.getInstance();
     originator = new Originator();
     model = Model.INSTANCE;
     view = View.getInstance();
+    loadDefaultImage(); // disabled as tries to load before app
+    view.initLayerStackData(layerstack.getStack(), makeLayerPanelChangeListener());
   }
 
   // singleton instance getter
@@ -63,29 +65,45 @@ public class Controller implements ImageManipulationController {
     return instance;
   }
 
+  /**
+   * Set up the change event listener for the layer panel list changes.
+   * @return teh listener - pass in initLayerStackdata() method
+   */
+  public ChangeListener<Layer> makeLayerPanelChangeListener() {
+    return (ObservableValue<? extends Layer> ov, Layer oldVal, Layer newVal) -> {
+      // switching activeitem
+      if (newVal != oldVal) {
+        // App.LOGGER.log("new value: " + newVal.getId());
+        layerstack.updateActiveLayerIndexById(newVal.getId());
+        // update view images here!
+        updateOriginalImage();
+      }
+    };
+  }
+
   // /**
-  //  * FILTER method
-  //  * 
-  //  * @return
-  //  */
+  // * FILTER method
+  // *
+  // * @return
+  // */
   // public boolean filter() {
-  //   if (layerstack.size() < 1)
-  //     return false;
-  //   Layer layer = layerstack.getActiveLayer();
-  //   if (layer == null)
-  //     return false;
-  //   Image img = layer.getFilteredImg();
-  //   if (img == null)
-  //     return false;
+  // if (layerstack.size() < 1)
+  // return false;
+  // Layer layer = layerstack.getActiveLayer();
+  // if (layer == null)
+  // return false;
+  // Image img = layer.getFilteredImg();
+  // if (img == null)
+  // return false;
 
-  //   // testing only with negative filter now
-  //   Image newImg = ConvertImage.negative(img);
+  // // testing only with negative filter now
+  // Image newImg = ConvertImage.negative(img);
 
-  //   // should save previous filtered state to history?
-  //   Image result = layerstack.updateImage(activeLayerIndex, newImg);
-  //   model.setResultImage(result);
+  // // should save previous filtered state to history?
+  // Image result = layerstack.updateImage(activeLayerIndex, newImg);
+  // model.setResultImage(result);
 
-  //   return true;
+  // return true;
   // }
 
   /**
@@ -133,28 +151,40 @@ public class Controller implements ImageManipulationController {
         image = ConvertImage.toJavafx(selectedFile);
       }
 
-      // add image to model
-      view.setNewOriginalimage(model.setImageFiltered(model.setImageOriginal(image)));
-
-      // store the file extension, so we know what to export to when saving
       String fileName = selectedFile.getName();
       String fileExtension = fileName.substring(fileName.lastIndexOf(".") + 1, fileName.length());
-      // model.setOriginalImgType(fileExtension);
 
-      // layerstack try
-      // layerstack.add(new Layer(image));
-
-      return true;
+      // layerstack version
+      boolean added = layerstack.addLayer(new Layer(image), true);
+      if(added) {
+        App.LOGGER.log("herererererere"+added);
+        view.setSelectedLayer(layerstack.getActiveLayerIndex());
+        updateOriginalImage();
+        return true;
+      }
+      return false;
     } catch (Exception e) {
       App.LOGGER.log("Image not found or corrupt file");
       return false;
     }
   }
 
+  /**
+   * Setting the original image viewer's image
+   * This always displays the current active layer's image
+   * @return back the newly set image
+   */
+  public boolean updateOriginalImage() {
+    Image original = layerstack.getActiveLayer().getBaseImg();
+    App.LOGGER.log("original: "+(original!=null));
+    Image inModel = model.setImageOriginal(original);
+    return view.setNewOriginalimage(inModel);
+  }
 
   /**
-   * Update the active layer to be the one with given id
-   * if no layer is with id, return false
+   * Update the active layer to be the one with given id if no layer is with id,
+   * return false
+   * 
    * @param id
    * @return
    */
@@ -162,16 +192,16 @@ public class Controller implements ImageManipulationController {
     return layerstack.updateActiveLayerIndexById(id);
   }
 
-
   /**
-   * Add a new layer to the layerstack when openning an image file.
-   * Newly added image is made the active layer
+   * Add a new layer to the layerstack when openning an image file. Newly added
+   * image is made the active layer
+   * 
    * @return
    */
   public boolean addLayer(Image img) {
     Layer layer = new Layer(img);
     boolean added = layerstack.addLayer(layer, true);
-    if(added) {
+    if (added) {
       // add to view, update view ..
 
     }
@@ -331,23 +361,24 @@ public class Controller implements ImageManipulationController {
   }
 
   // /**
-  //  * NOT USED CURRENTLY
-  //  * @param consumer
-  //  * @return
-  //  */
+  // * NOT USED CURRENTLY
+  // * @param consumer
+  // * @return
+  // */
   // public boolean displayDoubleDialog(Consumer<? super Double> consumer) {
-  //   if (model.getImageFiltered() == null)
-  //     return false;
+  // if (model.getImageFiltered() == null)
+  // return false;
 
-  //   SliderDialog dialog = new SliderDialog(mainStage, "Scale amount", model.getCurrentScale(), 0.1, 2.0, 2);
-  //   Optional<Double> result = dialog.showAndWait();
-  //   try {
-  //     result.ifPresent(consumer);
-  //     return dialog.getResult() != null;
-  //   } catch (Exception e) {
-  //     App.LOGGER.log(e.getMessage());
-  //   }
-  //   return false;
+  // SliderDialog dialog = new SliderDialog(mainStage, "Scale amount",
+  // model.getCurrentScale(), 0.1, 2.0, 2);
+  // Optional<Double> result = dialog.showAndWait();
+  // try {
+  // result.ifPresent(consumer);
+  // return dialog.getResult() != null;
+  // } catch (Exception e) {
+  // App.LOGGER.log(e.getMessage());
+  // }
+  // return false;
   // }
 
   /**

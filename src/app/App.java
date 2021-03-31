@@ -37,6 +37,5 @@ public class App extends Application {
     public void start(Stage primaryStage) {
         Controller.getInstance().setMainStage(primaryStage);
         primaryStage.show();
-        Controller.getInstance().loadDefaultImage();
     }
 }
