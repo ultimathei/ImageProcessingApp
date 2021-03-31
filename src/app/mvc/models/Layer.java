@@ -12,6 +12,8 @@ public class Layer {
   private String id;
   // optional custom name for the layer
   private String name;
+  // store the original file extension in case we need it at export
+  private String fileExtension;
   // we keep the original image
   private Image baseImg;
   // and make a copy for the modificaitons (after 1+ alterations)
@@ -36,6 +38,11 @@ public class Layer {
   public Layer(Image baseImage, String name) {
     init(baseImage);
     this.name = name;
+  }
+  public Layer(Image baseImage, String name, String fileExtension) {
+    init(baseImage);
+    this.name = name;
+    this.fileExtension = fileExtension;
   }
 
   // initialiser
@@ -84,7 +91,13 @@ public class Layer {
     name = s;
     return true;
   }
-
+  public String getFileExtension(){
+    return fileExtension;
+  }
+  public boolean setFileExtension(String s) {
+    fileExtension = s;
+    return true;
+  }
 
   // ARITHMETIC OPERATIONS ? here or in controller!
   // 

@@ -127,16 +127,19 @@ public class Controller implements ImageManipulationController {
 
       image = new Image(new FileInputStream(selectedFile));
 
-      // test if the javafx image was not constructed correctly
+      // test if the javafx image was constructed correctly
       if (image.isError()) {
         // some file types are not supported by javafx's Image class
         image = ConvertImage.toJavafx(selectedFile);
       }
 
+      // add image to model
       view.setNewOriginalimage(model.setImageFiltered(model.setImageOriginal(image)));
+
+      // store the file extension, so we know what to export to when saving
       String fileName = selectedFile.getName();
       String fileExtension = fileName.substring(fileName.lastIndexOf(".") + 1, fileName.length());
-      model.setOriginalImgType(fileExtension);
+      // model.setOriginalImgType(fileExtension);
 
       // layerstack try
       // layerstack.add(new Layer(image));
@@ -146,6 +149,33 @@ public class Controller implements ImageManipulationController {
       App.LOGGER.log("Image not found or corrupt file");
       return false;
     }
+  }
+
+
+  /**
+   * Update the active layer to be the one with given id
+   * if no layer is with id, return false
+   * @param id
+   * @return
+   */
+  public boolean updateActiveLayerIndexById(String id) {
+    return layerstack.updateActiveLayerIndexById(id);
+  }
+
+
+  /**
+   * Add a new layer to the layerstack when openning an image file.
+   * Newly added image is made the active layer
+   * @return
+   */
+  public boolean addLayer(Image img) {
+    Layer layer = new Layer(img);
+    boolean added = layerstack.addLayer(layer, true);
+    if(added) {
+      // add to view, update view ..
+
+    }
+    return true;
   }
 
   /**
@@ -211,7 +241,7 @@ public class Controller implements ImageManipulationController {
     if (image == null)
       return false;
     Image newImg = ConvertImage.flip(image, false);
-    return view.updateFilteredImage(model.setImageFiltered(newImg));
+    return view.updateResultImage(model.setImageFiltered(newImg));
   }
 
   /**
@@ -223,7 +253,7 @@ public class Controller implements ImageManipulationController {
     if (image == null)
       return false;
     Image newImg = ConvertImage.flip(image, true);
-    return view.updateFilteredImage(model.setImageFiltered(newImg));
+    return view.updateResultImage(model.setImageFiltered(newImg));
   }
 
   /**
@@ -241,7 +271,7 @@ public class Controller implements ImageManipulationController {
       Image newImg = ConvertImage.resize(image, newScale / currentScale);
       App.LOGGER.log("new height: " + newImg.getHeight());
       model.setCurrentScale(newScale);
-      return view.updateFilteredImage(model.setImageFiltered(newImg));
+      return view.updateResultImage(model.setImageFiltered(newImg));
     }
     return false;
   }
@@ -331,7 +361,7 @@ public class Controller implements ImageManipulationController {
       return false;
     int intAmount = ((Double) amount).intValue();
     Image newImg = ConvertImage.pixelShift(image, intAmount);
-    return view.updateFilteredImage(model.setImageFiltered(newImg));
+    return view.updateResultImage(model.setImageFiltered(newImg));
   }
 
   /**
@@ -344,7 +374,7 @@ public class Controller implements ImageManipulationController {
     if (image == null)
       return false;
     Image newImg = ConvertImage.pixelScale(image, amount);
-    return view.updateFilteredImage(model.setImageFiltered(newImg));
+    return view.updateResultImage(model.setImageFiltered(newImg));
   }
 
   /**
@@ -355,7 +385,7 @@ public class Controller implements ImageManipulationController {
     if (image == null)
       return false;
     Image newImg = ConvertImage.negative(image);
-    return view.updateFilteredImage(model.setImageFiltered(newImg));
+    return view.updateResultImage(model.setImageFiltered(newImg));
   }
 
   // ZOOM
@@ -442,26 +472,5 @@ public class Controller implements ImageManipulationController {
    */
   public void setCurrentScale(double scale) {
     model.setCurrentScale(scale);
-  }
-
-  /**
-   * Update the active layer to be the one with given id
-   * if no layer is with id, return false
-   * @param id
-   * @return
-   */
-  public boolean updateActiveLayerIndexById(String id) {
-    return layerstack.updateActiveLayerIndexById(id);
-  }
-
-
-  /**
-   * Add a new layer to the layerstack when openning an image file.
-   * Newly added image is made the active layer
-   * @return
-   */
-  public boolean addLayer(Image img) {
-    Layer layer = new Layer(img);
-    return true;
   }
 }
