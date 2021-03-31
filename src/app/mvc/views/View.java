@@ -6,6 +6,7 @@ import app.services.actions.*;
 import app.services.events.*;
 import app.utils.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import javafx.event.EventType;
 import javafx.geometry.Insets;
@@ -132,14 +133,7 @@ public class View extends Scene {
         layers.setBackground(new Background(new BackgroundFill(Color.web(ColorPalette.LIGHT_GREY), null, null)));
         layers.setFitToWidth(true);
         VBox layersList = new VBox();
-        layersList.getChildren().addAll(
-            makeLayersListItem(), 
-            makeLayersListItem(), 
-            makeLayersListItem(), 
-            makeLayersListItem(), 
-            makeLayersListItem(), 
-            makeLayersListItem()
-        );
+        layersList.getChildren().add(makeLayersListItem("layer-001"));
 
         layers.setContent(layersList);
 
@@ -153,40 +147,76 @@ public class View extends Scene {
         return layersPane;
     }
 
-    private HBox makeLayersListItem() {
+    private HBox makeLayersListItem(String id) {
         HBox layersListItem = new HBox();
+        layersListItem.setId(id);
         layersListItem.setMinHeight(50);
         layersListItem.setMaxHeight(50);
         layersListItem.setPrefWidth(300);
         layersListItem.setBorder(new Border(new BorderStroke(Color.web(ColorPalette.DARK_GREY), BorderStrokeStyle.SOLID,
                 CornerRadii.EMPTY, new BorderWidths(0.25))));
 
-        Text text = new Text("Test text");
+        Text text = new Text("Layer name - file name");
+        Button btn = makeLayerButton("id__"+"set-active-button", "btn", AppEvent.SET_ACTIVE_LAYER);
         
-        layersListItem.getChildren().addAll(text);
+        layersListItem.getChildren().addAll(text, btn);
         
         return layersListItem;
     }
 
-    /**
-     * Controls
-     * @param id
+        /**
+     * An example for how to use buttons
+     * 
+     * @param text
+     * @param eventType
      * @return
      */
+    private Button makeLayerButton(String id, String text, EventType<AppEvent> eventType) {
+        Button btn = new Button(text);
+        btn.setId(id);
+        btn.setPrefSize(60, 20);
+        btn.setOnAction(event -> eventBus.fireEvent(new AppEvent(eventType, id), "coming from: "+id));
+
+        return btn;
+    }
+
+    // CONTROLS PANE
+
+    /**
+     * ControlsPane factory method
+     * @param id
+     * @return HBox
+     */
     private HBox makeControls(String id) {
-        HBox editPane = new HBox();
-        editPane.setId(id);
-        editPane.setMinHeight(200);
-        editPane.setBackground(new Background(new BackgroundFill(Color.web("eeeeee"), null, null)));
-        editPane.setBorder(new Border(new BorderStroke(Color.web(ColorPalette.DARK_GREY), BorderStrokeStyle.SOLID,
+        HBox cntrlPane = new HBox();
+        cntrlPane.setId(id);
+        cntrlPane.setMinHeight(200);
+        cntrlPane.setBackground(new Background(new BackgroundFill(Color.web("eeeeee"), null, null)));
+        cntrlPane.setBorder(new Border(new BorderStroke(Color.web(ColorPalette.DARK_GREY), BorderStrokeStyle.SOLID,
                 CornerRadii.EMPTY, new BorderWidths(0.25))));
 
-        Button btn = makeControlButton("Zoom in", AppEvent.ZOOM_IN);
-        Button btn2 = makeControlButton("Zoom out", AppEvent.ZOOM_OUT);
-        Button btn3 = makeControlButton("Zoom reset", AppEvent.ZOOM_RESET);
-        editPane.getChildren().addAll(btn, btn2, btn3);
+        List<Button> controlPaneBtns = new ArrayList<>();
+        controlPaneBtns.add(makeControlsPaneButton("Zoom in", AppEvent.ZOOM_IN));
+        controlPaneBtns.add(makeControlsPaneButton("Zoom out", AppEvent.ZOOM_OUT));
+        // controlPaneBtns.add(makeControlsPaneButton("Zoom reset", AppEvent.ZOOM_RESET));
+        cntrlPane.getChildren().addAll(controlPaneBtns);
 
-        return editPane;
+        return cntrlPane;
+    }
+
+    /**
+     * Button maker for the controls pane
+     * 
+     * @param text
+     * @param eventType
+     * @return
+     */
+    private Button makeControlsPaneButton(String text, EventType<AppEvent> eventType) {
+        Button btn = new Button(text);
+        btn.setPrefSize(120, 20);
+        btn.setOnAction(event -> eventBus.fireEvent(new AppEvent(eventType)));
+
+        return btn;
     }
 
     /**
@@ -286,22 +316,6 @@ public class View extends Scene {
 
         menuBar.setId(id);
         return menuBar;
-    }
-
-    // -- NOT USED CURRENTLY --
-    /**
-     * An example for how to use buttons
-     * 
-     * @param text
-     * @param eventType
-     * @return
-     */
-    private Button makeControlButton(String text, EventType<AppEvent> eventType) {
-        Button btn = new Button(text);
-        btn.setPrefSize(120, 20);
-        btn.setOnAction(event -> eventBus.fireEvent(new AppEvent(eventType)));
-
-        return btn;
     }
 
     // -- PUBLIC METHODS --

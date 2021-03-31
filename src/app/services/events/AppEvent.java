@@ -5,11 +5,15 @@ import javafx.event.EventType;
 
 public class AppEvent extends Event {
     private static final long serialVersionUID = 1L;
+    private String payload;
     
     // first define Any event, the super event
     public static final EventType<AppEvent> ANY 
         = new EventType<>(Event.ANY, "GENERIC_EVENT");
 
+    public static final EventType<AppEvent> SET_ACTIVE_LAYER
+        = new EventType<>(ANY, "update active layer");
+    
     public static final EventType<AppEvent> OPEN
         = new EventType<>(ANY, "Open file");
     
@@ -52,7 +56,17 @@ public class AppEvent extends Event {
     public static final EventType<AppEvent> ZOOM_RESET
         = new EventType<>(ANY, "Zoom reset");
 
+    // CONSTRUCTORs
     public AppEvent(EventType<AppEvent> type) {
         super(type);
-    }    
+    }
+    public AppEvent(EventType<AppEvent> type, String payload) {
+        super(type);
+        this.payload = payload;
+    }
+
+    // GETTER
+    public String getPayload(){
+        return payload;
+    }
 }

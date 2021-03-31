@@ -19,6 +19,7 @@ public class ImageActionProvider implements ImageAction {
         eventBus.addEventHandler(AppEvent.ZOOM_IN, this::zoomIn);
         eventBus.addEventHandler(AppEvent.ZOOM_OUT, this::zoomOut);
         eventBus.addEventHandler(AppEvent.ZOOM_RESET, this::zoomReset);
+        eventBus.addEventHandler(AppEvent.SET_ACTIVE_LAYER, this::setActiveLayer);
     }
 
     @Override
@@ -113,6 +114,17 @@ public class ImageActionProvider implements ImageAction {
     public void zoomReset(Event event) {
         App.LOGGER.log("zoom reset canvas here..");
         if(Controller.getInstance().zoomReset()){
+            App.LOGGER.log("success: " + event.getEventType());
+            Controller.getInstance().setHasChanged(true);
+        } else {
+            App.LOGGER.log("fail: " + event.getEventType());
+        }
+    }
+
+    @Override
+    public void setActiveLayer(AppEvent event) {
+        App.LOGGER.log("Update active layer reference to: "+event.getPayload());
+        if(Controller.getInstance().updateActiveLayerIndexById(event.getPayload())){
             App.LOGGER.log("success: " + event.getEventType());
             Controller.getInstance().setHasChanged(true);
         } else {

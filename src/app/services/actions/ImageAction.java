@@ -1,5 +1,6 @@
 package app.services.actions;
 
+import app.services.events.AppEvent;
 import javafx.event.Event;
 
 public interface ImageAction{
@@ -12,4 +13,5 @@ public interface ImageAction{
     void zoomIn(Event event);
     void zoomOut(Event event);
     void zoomReset(Event event);
+    void setActiveLayer(AppEvent event);
 }

@@ -41,6 +41,7 @@ public class Controller implements ImageManipulationController {
   private Originator originator;
   // the currently selected layer on the layer stack panel
   private int activeLayerIndex; // update this with the layer component?
+  private String activeLayerId;
   private LayerStack layerstack;
 
   // -- SINGLETON CONSTRUCTOR --
@@ -48,7 +49,7 @@ public class Controller implements ImageManipulationController {
     registerServices();
     history = new LinkedList<>();
     historyIndex = 0;
-    activeLayerIndex = 0;
+    // activeLayerIndex = 0;
     layerstack = LayerStack.getInstance();
     originator = new Originator();
     model = Model.INSTANCE;
@@ -62,30 +63,30 @@ public class Controller implements ImageManipulationController {
     return instance;
   }
 
-  /**
-   * FILTER method
-   * 
-   * @return
-   */
-  public boolean filter() {
-    if (layerstack.size() < 1)
-      return false;
-    Layer layer = layerstack.get(activeLayerIndex);
-    if (layer == null)
-      return false;
-    Image img = layer.getFilteredImg();
-    if (img == null)
-      return false;
+  // /**
+  //  * FILTER method
+  //  * 
+  //  * @return
+  //  */
+  // public boolean filter() {
+  //   if (layerstack.size() < 1)
+  //     return false;
+  //   Layer layer = layerstack.getActiveLayer();
+  //   if (layer == null)
+  //     return false;
+  //   Image img = layer.getFilteredImg();
+  //   if (img == null)
+  //     return false;
 
-    // testing only with negative filter now
-    Image newImg = ConvertImage.negative(img);
+  //   // testing only with negative filter now
+  //   Image newImg = ConvertImage.negative(img);
 
-    // should save previous filtered state to history?
-    Image result = layerstack.updateImage(activeLayerIndex, newImg);
-    model.setResultImage(result);
+  //   // should save previous filtered state to history?
+  //   Image result = layerstack.updateImage(activeLayerIndex, newImg);
+  //   model.setResultImage(result);
 
-    return true;
-  }
+  //   return true;
+  // }
 
   /**
    * LOAD FILE from path
@@ -428,15 +429,6 @@ public class Controller implements ImageManipulationController {
   }
 
   /**
-   * Change the currently active layer index
-   * 
-   * @param index
-   */
-  public void setActiveIndex(int index) {
-    activeLayerIndex = index;
-  }
-
-  /**
    * 
    * @param state
    */
@@ -450,5 +442,26 @@ public class Controller implements ImageManipulationController {
    */
   public void setCurrentScale(double scale) {
     model.setCurrentScale(scale);
+  }
+
+  /**
+   * Update the active layer to be the one with given id
+   * if no layer is with id, return false
+   * @param id
+   * @return
+   */
+  public boolean updateActiveLayerIndexById(String id) {
+    return layerstack.updateActiveLayerIndexById(id);
+  }
+
+
+  /**
+   * Add a new layer to the layerstack when openning an image file.
+   * Newly added image is made the active layer
+   * @return
+   */
+  public boolean addLayer(Image img) {
+    Layer layer = new Layer(img);
+    return true;
   }
 }

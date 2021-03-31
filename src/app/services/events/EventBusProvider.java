@@ -1,5 +1,6 @@
 package app.services.events;
 
+import app.App;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
@@ -11,6 +12,12 @@ public class EventBusProvider implements EventBus {
 
     @Override
     public void fireEvent(Event event) {
+        group.fireEvent(event);
+    }
+
+    @Override
+    public void fireEvent(Event event, String payload) {
+        App.LOGGER.log("Event with payload fired, "+payload);
         group.fireEvent(event);
     }
 
