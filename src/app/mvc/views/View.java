@@ -36,6 +36,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -118,14 +119,15 @@ public class View extends Scene {
         layersList.setItems(stack);
         layersList.setCellFactory(input -> new LayersListItemBox());
         layersList.getSelectionModel().selectedItemProperty().addListener(listener);
-        setSelectedLayer(0);
+        // setSelectedLayer(0);
 
         return true;
     }
 
     // allowing controller to set active list item to sync up with activeIndex
-    public void setSelectedLayer(int i) {
-        layersList.getSelectionModel().select(i);
+    public void setSelectedLayer(Layer layer) {
+        layersList.getSelectionModel().select(layer);
+        // layersList.getSelectionModel().select(i);
     }
 
     // -- PUBLIC INSTANCE METHODS --
@@ -166,6 +168,12 @@ public class View extends Scene {
         }
     }
 
+    public boolean clearCanvas() {
+        originalImageView.setImage(null);
+        resultImageView.setImage(null);
+        return true;
+    }
+
     // ZOOM for canvas - does not scale the image files
     public void zoomInCanvas() {
         // zoomableCanvas.getTransforms().add(new Scale(1.2, 1.2, 0, 0));
@@ -200,6 +208,13 @@ public class View extends Scene {
         return pane;
     }
 
+    /**
+     * REfreshing the info panel to always show the active (selected) layer's
+     * details
+     * 
+     * @param layer
+     * @return
+     */
     public boolean updateInfoStack(Layer layer) {
         infoStack.getChildren().setAll(makeInfoPane(layer));
         return true;
@@ -218,21 +233,25 @@ public class View extends Scene {
         gridPane.setHgap(5);
         gridPane.setVgap(5);
 
-        // set values from layer
-        gridPane.add(new Text("Layer id: "), 0, 0);
-        gridPane.add(new Text(layer.getId()), 1, 0);
+        if (layer != null) {
+            // set values from layer
+            gridPane.add(new Text("Layer id: "), 0, 0);
+            gridPane.add(new Text(layer.getId()), 1, 0);
 
-        gridPane.add(new Text("Layer name: "), 0, 1);
-        String name = (layer.getName() != null) ? layer.getName() : "not set";
-        gridPane.add(new Text(name), 1, 1);
+            gridPane.add(new Text("Layer name: "), 0, 1);
+            String name = (layer.getName() != null) ? layer.getName() : "not set";
+            gridPane.add(new Text(name), 1, 1);
 
-        gridPane.add(new Text("File extension: "), 0, 2);
-        String extension = (layer.getFileExtension() != null) ? layer.getFileExtension() : "not set";
-        gridPane.add(new Text(extension), 1, 2);
+            gridPane.add(new Text("File extension: "), 0, 2);
+            String extension = (layer.getFileExtension() != null) ? layer.getFileExtension() : "not set";
+            gridPane.add(new Text(extension), 1, 2);
 
-        CheckBox negativeCheckBox = new CheckBox("Negative");
-        negativeCheckBox.setId("control--negative");
-        gridPane.add(negativeCheckBox, 0, 3);
+            CheckBox negativeCheckBox = new CheckBox("Negative");
+            negativeCheckBox.setId("control--negative");
+            gridPane.add(negativeCheckBox, 0, 3);
+        } else {
+            gridPane.add(new Text("No layer selected! Open an image to create a layer!"), 0, 0);
+        }
 
         return gridPane;
     }
@@ -285,8 +304,6 @@ public class View extends Scene {
         listItem.setMinHeight(50);
         listItem.setMaxHeight(50);
         listItem.setPrefWidth(300);
-        listItem.setBorder(new Border(new BorderStroke(Color.web(ColorPalette.DARK_GREY), BorderStrokeStyle.SOLID,
-                CornerRadii.EMPTY, new BorderWidths(0.25))));
 
         // internal structure of a layer
         Text text = new Text(name);
@@ -302,10 +319,22 @@ public class View extends Scene {
      * @param id String that is used as the id of the layer component
      * @return the footer as a VBox object
      */
-    private VBox makeLayersPaneFooter(String id) {
-        VBox footer = new VBox();
+    private HBox makeLayersPaneFooter(String id) {
+        HBox footer = new HBox();
         footer.setId(id);
         footer.setMinHeight(30);
+
+        Button addBtn = new Button("+");
+        addBtn.setOnAction(event -> eventBus.fireEvent(new AppEvent(AppEvent.OPEN)));
+
+        Button removeBtn = new Button("-");
+        removeBtn.setOnAction(event -> eventBus.fireEvent(new AppEvent(AppEvent.REMOVE_LAYER)));
+
+        Region emptyRegion = new Region();
+        HBox.setHgrow(emptyRegion, Priority.ALWAYS);
+
+        footer.getChildren().addAll(emptyRegion, removeBtn, addBtn);
+
         return footer;
     }
 

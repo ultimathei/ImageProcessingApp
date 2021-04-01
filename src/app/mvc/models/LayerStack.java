@@ -76,12 +76,7 @@ public class LayerStack {
 
   // remove active (selected) layer from the stack
   public boolean removeLayer() {
-    if (stack.remove(activeLayerIndex) == null)
-      return false;
-    // set the layerbelow as active
-    activeLayerIndex--;
-    // should also update the currentresult for effected layers?
-    return true;
+    return (activeLayerIndex<0 || stack.remove(activeLayerIndex) == null);
   }
 
   // getter for the currently active layer's index
@@ -121,6 +116,7 @@ public class LayerStack {
 
   // get a given layer's current render, top: stack.size()-1
   public Image getStackRenderAt(int i) {
+    if(i<0) return null;
     return getLayer(i).getLocalRender();
   }
 

@@ -104,11 +104,9 @@ public class Controller implements ImageManipulationController {
         // some file types are not supported by javafx's Image class
         image = ConvertImage.toJavafx(selectedFile);
       }
-
-      // layerstack version
-      Layer addedLayer = layerstack.addLayer(new Layer(image, imageName, fileExtension), true);
-      // update view and info
-      view.setSelectedLayer(layerstack.getActiveLayerIndex());
+      Layer addedLayer = new Layer(image, imageName, fileExtension);
+      addedLayer = layerstack.addLayer(addedLayer, true);
+      view.setSelectedLayer(addedLayer);
       return updateOriginalImage(addedLayer);
     } catch (Exception e) {
       App.LOGGER.log("Image not found or corrupt file");
@@ -133,6 +131,12 @@ public class Controller implements ImageManipulationController {
     return (ObservableValue<? extends Layer> ov, Layer oldVal, Layer newVal) -> {
       // switching activeitem
       if (newVal != oldVal) {
+        if(newVal==null) {
+          // no selected element -> the list is empty
+          updateOriginalImage(null);
+          // model.clearImages();
+          // view.clearCanvas();
+        }
         layerstack.updateActiveLayerIndexById(newVal.getId());
         updateOriginalImage(newVal);
       }
@@ -162,7 +166,7 @@ public class Controller implements ImageManipulationController {
    * @return back the newly set image
    */
   public boolean updateOriginalImage(Layer layer) {
-    Image inModel = model.setImageOriginal(layer.getBaseImg());
+    Image inModel = (layer==null) ? model.setImageOriginal(null) : model.setImageOriginal(layer.getBaseImg());
     return (view.setNewOriginalimage(inModel) && updateFilteredImage() && updateInfoPanel(layer));
   }
 
@@ -173,11 +177,7 @@ public class Controller implements ImageManipulationController {
    * @return back the newly set image
    */
   public boolean updateFilteredImage() {
-    Layer activeLayer = layerstack.getActiveLayer();
-    Image filteredImage = activeLayer.getFilteredImg();
-    if (filteredImage == null) {
-      filteredImage = activeLayer.updateFilteredImage();
-    }
+    Image filteredImage = layerstack.getStackRenderAt(0);
     Image inModel = model.setImageFiltered(filteredImage);
     return view.updateResultImage(inModel);
   }

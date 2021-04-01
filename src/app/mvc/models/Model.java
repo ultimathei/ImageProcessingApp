@@ -103,4 +103,10 @@ public enum Model {
         currentScale = newScale;
         return true;
     }
+    public boolean clearImages() {
+        imageOriginal = null;
+        imageFiltered = null;
+        
+        return true;
+    }
 }

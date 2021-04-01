@@ -16,6 +16,9 @@ public class AppEvent extends Event {
     
     public static final EventType<AppEvent> OPEN
         = new EventType<>(ANY, "Open file");
+
+    public static final EventType<AppEvent> REMOVE_LAYER
+        = new EventType<>(ANY, "Remove layer");
     
     public static final EventType<AppEvent> SAVE
         = new EventType<>(ANY, "Save file");
