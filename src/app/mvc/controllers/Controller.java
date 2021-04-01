@@ -55,7 +55,7 @@ public class Controller implements ImageManipulationController {
     view.getStylesheets().add("app/stylesheet.css");
     view.initLayerStackData(layerstack.getStack(), makeLayerPanelChangeListener());
     if (loadDefault)
-      openImage(model.getDefaultImagePath());
+      newLayerFromFile(model.getDefaultImagePath());
   }
 
   // singleton instance getter
@@ -74,7 +74,7 @@ public class Controller implements ImageManipulationController {
    * @param filePath an optional argument for the relative path to the file
    * @return true if the open and the view update was successful false otherwise
    */
-  public boolean openImage(String filePath) {
+  public boolean newLayerFromFile(String filePath) {
     File selectedFile;
     Image image;
 
@@ -106,19 +106,22 @@ public class Controller implements ImageManipulationController {
       }
 
       // layerstack version
-      boolean added = layerstack.addLayer(new Layer(image, imageName, fileExtension), true);
-      if (added) {
-        // update view and info
-        view.setSelectedLayer(layerstack.getActiveLayerIndex());
-        Layer activeLayer = layerstack.getActiveLayer();
-        App.LOGGER.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!?" + activeLayer.getId());
-        return updateOriginalImage(activeLayer) && updateInfoPanel(activeLayer);
-      }
-      return false;
+      Layer addedLayer = layerstack.addLayer(new Layer(image, imageName, fileExtension), true);
+      // update view and info
+      view.setSelectedLayer(layerstack.getActiveLayerIndex());
+      return updateOriginalImage(addedLayer);
     } catch (Exception e) {
       App.LOGGER.log("Image not found or corrupt file");
       return false;
     }
+  }
+
+  /**
+   * Deleting the active (selected) layer
+   * @return
+   */
+  public boolean deleteLayer() {
+    return layerstack.removeLayer();
   }
 
   /**
@@ -189,19 +192,6 @@ public class Controller implements ImageManipulationController {
   public boolean updateActiveLayerIndexById(String id) {
     return layerstack.updateActiveLayerIndexById(id);
   }
-
-  // /**
-  //  * Add a new layer to the layerstack when openning an image file. Newly added
-  //  * image is made the active layer
-  //  * 
-  //  * @return
-  //  */
-  // public boolean addLayer(Image img) {
-  //   Layer layer = new Layer(img);
-  //   boolean added = layerstack.addLayer(layer, true);
-  //   updateFilteredImage();
-  //   return true;
-  // }
 
   /**
    * Check if the application is safe to quit (from menu quit)

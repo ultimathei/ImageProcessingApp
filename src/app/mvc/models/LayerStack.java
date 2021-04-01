@@ -54,14 +54,14 @@ public class LayerStack {
   }
 
   // make active should be true for now, so the new layer is added to the top
-  public boolean addLayer(Layer layer, boolean makeActive) {
+  public Layer addLayer(Layer layer, boolean makeActive) {
     // add new layer to start of the list
     stack.add(0, layer);
     if (makeActive)
       activeLayerIndex = 0;
     // should also calculate the currentresult?
     App.LOGGER.log("Layer added, stack size now: " + stack.size());
-    return true;
+    return layer;
   }
 
   // remove given layer from the stack
@@ -70,6 +70,16 @@ public class LayerStack {
       return false;
     // set top layer as active
     activeLayerIndex = 0;
+    // should also update the currentresult for effected layers?
+    return true;
+  }
+
+  // remove active (selected) layer from the stack
+  public boolean removeLayer() {
+    if (stack.remove(activeLayerIndex) == null)
+      return false;
+    // set the layerbelow as active
+    activeLayerIndex--;
     // should also update the currentresult for effected layers?
     return true;
   }
