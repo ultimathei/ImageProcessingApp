@@ -61,6 +61,7 @@ public class View extends Scene {
 
     private MenuBar menuBar;
     private StackPane zoomableCanvas;
+    private StackPane infoStack;
     // private ScrollPane viewPort;
     private SplitPane viewPort;
     private ImageView originalImageView;
@@ -93,6 +94,9 @@ public class View extends Scene {
             }
 
         };
+
+        infoStack = new StackPane();
+        infoStack.setId("info-stack");
 
         // initialise
         menuBar = makeMenuBar(IdSelectors.MENU, model.getMenuStructure());
@@ -191,11 +195,7 @@ public class View extends Scene {
         VBox pane = new VBox();
         pane.setId(id);
         pane.setPrefWidth(model.getSidePaneWidth());
-
-        // pane.setTop(makeControls(IdSelectors.CONTROLS_PANE));
-        StackPane controlsPane = makeInfoStack("info-stack");
-        BorderPane controls = makeAppComponent(IdSelectors.CONTROLS_PANE, "Controls", controlsPane);
-
+        BorderPane controls = makeAppComponent(IdSelectors.CONTROLS_PANE, "Controls", infoStack);
         BorderPane layersPane = makeLayersPane(IdSelectors.LAYERS_PANE);
         BorderPane layers = makeAppComponent("layers", "Layers", layersPane);
         VBox.setVgrow(layers, Priority.ALWAYS);
@@ -204,13 +204,16 @@ public class View extends Scene {
         return pane;
     }
 
-    public StackPane makeInfoStack(String id) {
-        StackPane sp = new StackPane();
-        sp.setId(id);
-
-        return sp;
+    public boolean updateInfoStack(Layer layer) {
+        infoStack.getChildren().setAll(makeInfoPane(layer));
+        return true;
     }
 
+    /**
+     * Info grid panel for the active layer information
+     * @param layer
+     * @return
+     */
     public GridPane makeInfoPane(Layer layer) {
         GridPane gridPane = new GridPane();
         gridPane.setId("info_"+layer.getId());

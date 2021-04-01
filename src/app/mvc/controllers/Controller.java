@@ -46,7 +46,7 @@ public class Controller implements ImageManipulationController {
   private LayerStack layerstack;
 
   // -- SINGLETON CONSTRUCTOR --
-  private Controller() {
+  private Controller(boolean loadDefault) {
     registerServices();
     history = new LinkedList<>();
     historyIndex = 0;
@@ -55,14 +55,14 @@ public class Controller implements ImageManipulationController {
     model = Model.INSTANCE;
     view = View.getInstance();
     view.getStylesheets().add("app/stylesheet.css");
-    loadDefaultImage(); // disabled as tries to load before app
     view.initLayerStackData(layerstack.getStack(), makeLayerPanelChangeListener());
+    if(loadDefault) loadDefaultImage();
   }
 
   // singleton instance getter
   public static Controller getInstance() {
     if (instance == null)
-      instance = new Controller();
+      instance = new Controller(true);
     return instance;
   }
 
@@ -76,20 +76,18 @@ public class Controller implements ImageManipulationController {
       // switching activeitem
       if (newVal != oldVal) {
         layerstack.updateActiveLayerIndexById(newVal.getId());
-        updateInfoPanel(newVal);
         updateOriginalImage(newVal);
-        updateFilteredImage();
       }
     };
   }
 
-  public void updateInfoPanel(Layer layer) {
+  public boolean updateInfoPanel(Layer layer) {
     // update info panel here
     try{
-      StackPane infoStack = (StackPane) mainStage.getScene().lookup("#info-stack");
-      infoStack.getChildren().setAll(view.makeInfoPane(layer));
+      return view.updateInfoStack(layer);
     } catch(Exception e) {
       App.LOGGER.log("exception while updating info stack..");
+      return false;
     }
   }
 
@@ -132,27 +130,24 @@ public class Controller implements ImageManipulationController {
 
       image = new Image(new FileInputStream(selectedFile));
 
+      String[] nameArray = selectedFile.getName().split("\\.", -1);
+      String fileExtension = nameArray[nameArray.length-1];
+      String imageName = nameArray[nameArray.length-2];
+
       // test if the javafx image was constructed correctly
       if (image.isError()) {
         // some file types are not supported by javafx's Image class
         image = ConvertImage.toJavafx(selectedFile);
       }
 
-      String[] nameArray = selectedFile.getName().split("\\.", -1);
-      String fileExtension = nameArray[nameArray.length-1];
-      String imageName = nameArray[nameArray.length-2];
-
       // layerstack version
       boolean added = layerstack.addLayer(new Layer(image, imageName, fileExtension), true);
       if (added) {
-        App.LOGGER.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!?");
         // update view and info
         view.setSelectedLayer(layerstack.getActiveLayerIndex());
         Layer activeLayer = layerstack.getActiveLayer();
-        updateInfoPanel(activeLayer);
-        updateOriginalImage(activeLayer);
-        updateFilteredImage();
-        return true;
+        App.LOGGER.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!?" + activeLayer.getId());
+        return updateOriginalImage(activeLayer) && updateInfoPanel(activeLayer);
       }
       return false;
     } catch (Exception e) {
@@ -162,14 +157,14 @@ public class Controller implements ImageManipulationController {
   }
 
   /**
-   * Setting the original image viewer's image This always displays the current
+   * Setting the original image viewer's image. This always displays the current
    * active layer's image
    * 
    * @return back the newly set image
    */
   public boolean updateOriginalImage(Layer layer) {
     Image inModel = model.setImageOriginal(layer.getBaseImg());
-    return view.setNewOriginalimage(inModel);
+    return (view.setNewOriginalimage(inModel) && updateFilteredImage() && updateInfoPanel(layer));
   }
 
   /**
