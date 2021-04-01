@@ -1,5 +1,6 @@
 package app.mvc.models;
 
+import app.App;
 import app.utils.ConvertImage;
 import javafx.scene.image.Image;
 
@@ -95,13 +96,10 @@ public class Layer {
     localRender = img;
     return localRender;
   }
-  public Image updateLocalRender(Image img){
-    return ConvertImage.pixelAdd(img, filteredImg);
+  public Image updateLocalRender(Image renderOfLayerBelow){
+    App.LOGGER2.log("in update local render");
+    return ConvertImage.pixelAdd(renderOfLayerBelow, filteredImg);
   }
-  // public Image updateLocalRender(Image img, Image img2){
-  //   localRender = ConvertImage.pixelAdd(img, img2);
-  //   return localRender;
-  // }
   public String getId() {
     return id;
   }

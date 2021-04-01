@@ -44,7 +44,7 @@ public class LayerStack {
 
   // getter for layer at position i
   public Layer getLayer(int i) {
-    if (i < 0)
+    if (i < 0 || i > stack.size())
       return null;
     return stack.get(i);
   }
@@ -124,35 +124,46 @@ public class LayerStack {
   public Image getStackRenderAt(int index) {
     if (index < 0)
       return null;
+      
     Layer layer = getLayer(index);
     Image local = layer.getLocalRender();
+    
+    // already have a local render, return that one
     if (local != null) {
+      App.LOGGER2.log("1");
       return local;
     }
-    if (index == 0) {
-      return layer.setLocalRender(layer.getFilteredImg());
+
+    // no local render yet, but layer with index exists
+    if (index < stack.size()-1) {
+      App.LOGGER2.log("2: "+index);
+      Image localRenderBelow = getStackRenderAt(index + 1); // recursive!
+      if(localRenderBelow != null)
+        return layer.updateLocalRender(localRenderBelow);
     }
-    Image localRenderBelow = getStackRenderAt(index + 1); // recursive!
-    return layer.updateLocalRender(localRenderBelow);
+    
+    App.LOGGER2.log("3");
+    return layer.setLocalRender(layer.getFilteredImg());
   }
 
   // TODO
   // update local render at i pos, and every pos after
   // public Image setStackRenderAt(int i) {
-  //   Image render;
-  //   Layer layer = getLayer(i);
-  //   if (i < 1) {
-  //     return layer.updateLocalRender(null);
-  //   } else {
-  //     // filteredImg = baseImg + filters + transforms + operations with layers below
-  //     // render = updateLocalFiltersAt(i);
-  //     // render = updateLocalTransformsAt(i);
-  //     // do we update on insert? yeah sure
+  // Image render;
+  // Layer layer = getLayer(i);
+  // if (i < 1) {
+  // return layer.updateLocalRender(null);
+  // } else {
+  // // filteredImg = baseImg + filters + transforms + operations with layers
+  // below
+  // // render = updateLocalFiltersAt(i);
+  // // render = updateLocalTransformsAt(i);
+  // // do we update on insert? yeah sure
 
-  //     render = layer.updateLocalRender(getStackRenderAt(i - 1));
-  //     return render;
-  //   }
-  //   //
+  // render = layer.updateLocalRender(getStackRenderAt(i - 1));
+  // return render;
+  // }
+  // //
   // }
 
   // MOVING LAYERS!

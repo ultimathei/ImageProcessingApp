@@ -17,7 +17,8 @@ import javafx.stage.Stage;
 public class App extends Application {
     public static final String APP_NAME = "Image Processing Application";
     private static final Boolean DEBUG_MODE = true;
-    public static final AppLogger LOGGER = new AppLogger(DEBUG_MODE, "Logger");
+    public static final AppLogger LOGGER = new AppLogger(false, "Logger");
+    public static final AppLogger LOGGER2 = new AppLogger(DEBUG_MODE, "Logger2");
 
     /**
      * This is the main method
