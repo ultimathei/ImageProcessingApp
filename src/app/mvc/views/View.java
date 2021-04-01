@@ -211,26 +211,33 @@ public class View extends Scene {
 
     /**
      * Info grid panel for the active layer information
+     * 
      * @param layer
      * @return
      */
     public GridPane makeInfoPane(Layer layer) {
         GridPane gridPane = new GridPane();
-        gridPane.setId("info_"+layer.getId());
+        gridPane.setId("info_" + layer.getId());
         gridPane.getStyleClass().add("controls");
         gridPane.setHgap(5);
         gridPane.setVgap(5);
 
+        // set values from layer
+        gridPane.add(new Text("Layer id: "), 0, 0);
+        gridPane.add(new Text(layer.getId()), 1, 0);
+
+        gridPane.add(new Text("Layer name: "), 0, 1);
+        String name = (layer.getName() != null) ? layer.getName() : "not set";
+        gridPane.add(new Text(name), 1, 1);
+
+        gridPane.add(new Text("File extension: "), 0, 2);
+        String extension = (layer.getFileExtension() != null) ? layer.getFileExtension() : "not set";
+        gridPane.add(new Text(extension), 1, 2);
+
         CheckBox negativeCheckBox = new CheckBox("Negative");
         negativeCheckBox.setId("control--negative");
+        gridPane.add(negativeCheckBox, 0, 3);
 
-        // set values from layer
-
-        Text testText = new Text();
-        testText.setText(layer.getId());
-
-        gridPane.add(negativeCheckBox, 0, 0);
-        gridPane.add(testText, 0, 1);
         return gridPane;
     }
 

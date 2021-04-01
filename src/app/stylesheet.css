@@ -36,3 +36,33 @@
   -fx-color: -fx-color-white;
   -fx-fill: -fx-color-white;
 }
+
+.layer {
+
+}
+
+.layer__name {
+  -fx-padding: 5 5 5 5;
+}
+
+.list-cell:even {
+  -fx-background-color: white;
+}
+
+.list-cell:filled:hover {
+  -fx-background-color: #0093ff;
+}
+
+.list-cell:filled:hover .layer__name{
+  -fx-fill: -fx-color-gray-dark;
+}
+
+.list-cell:filled:selected:focused,
+.list-cell:filled:selected {
+  -fx-background-color: -fx-color-gray-purple;
+}
+
+.list-cell:filled:selected:focused,
+.list-cell:filled:selected .layer__name {
+  -fx-fill: -fx-color-white;
+}
