@@ -30,7 +30,7 @@ public enum Model {
     // The input image saved as a javafx image object
     private Image imageOriginal;
     // The modified image saved as a javafx image object
-    private Image imageFiltered;
+    private Image imageResult;
     // the current scale of the filtered image
     private double currentScale = 1.0; 
 
@@ -58,8 +58,8 @@ public enum Model {
     public Image getImageOriginal() {
         return imageOriginal;
     }
-    public Image getImageFiltered() {
-        return imageFiltered;
+    public Image getImageResult() {
+        return imageResult;
     }
     public int getViewerWidth() {
         return viewerWidth;
@@ -91,9 +91,9 @@ public enum Model {
         imageOriginal = newImage;
         return imageOriginal;
     }
-    public Image setImageFiltered(Image newImage) {
-        imageFiltered = newImage;
-        return imageFiltered;
+    public Image setImageResult(Image newImage) {
+        imageResult = newImage;
+        return imageResult;
     }
     public void setHasChanged(boolean state) {
         hasChanged = state;
@@ -105,7 +105,7 @@ public enum Model {
     }
     public boolean clearImages() {
         imageOriginal = null;
-        imageFiltered = null;
+        imageResult = null;
         
         return true;
     }

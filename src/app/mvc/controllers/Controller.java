@@ -133,11 +133,12 @@ public class Controller implements ImageManipulationController {
       if (newVal != oldVal) {
         if(newVal==null) {
           // no selected element -> the list is empty
-          updateOriginalImage(null);
+          layerstack.setActiveLayerIndex(-1);
           // model.clearImages();
           // view.clearCanvas();
+        } else {
+          layerstack.updateActiveLayerIndexById(newVal.getId());
         }
-        layerstack.updateActiveLayerIndexById(newVal.getId());
         updateOriginalImage(newVal);
       }
     };
@@ -167,7 +168,7 @@ public class Controller implements ImageManipulationController {
    */
   public boolean updateOriginalImage(Layer layer) {
     Image inModel = (layer==null) ? model.setImageOriginal(null) : model.setImageOriginal(layer.getBaseImg());
-    return (view.setNewOriginalimage(inModel) && updateFilteredImage() && updateInfoPanel(layer));
+    return (view.setNewOriginalimage(inModel) && updateResultImage() && updateInfoPanel(layer));
   }
 
   /**
@@ -176,9 +177,9 @@ public class Controller implements ImageManipulationController {
    * 
    * @return back the newly set image
    */
-  public boolean updateFilteredImage() {
-    Image filteredImage = layerstack.getStackRenderAt(0);
-    Image inModel = model.setImageFiltered(filteredImage);
+  public boolean updateResultImage() {
+    Image result = layerstack.getStackRenderAt(0);
+    Image inModel = model.setImageResult(result);
     return view.updateResultImage(inModel);
   }
 
@@ -252,11 +253,11 @@ public class Controller implements ImageManipulationController {
    * @return
    */
   public boolean transformFlipHorizontal() {
-    Image image = model.getImageFiltered();
+    Image image = model.getImageResult();
     if (image == null)
       return false;
     Image newImg = ConvertImage.flip(image, false);
-    return view.updateResultImage(model.setImageFiltered(newImg));
+    return view.updateResultImage(model.setImageResult(newImg));
   }
 
   /**
@@ -264,11 +265,11 @@ public class Controller implements ImageManipulationController {
    * @return
    */
   public boolean transformFlipVetical() {
-    Image image = model.getImageFiltered();
+    Image image = model.getImageResult();
     if (image == null)
       return false;
     Image newImg = ConvertImage.flip(image, true);
-    return view.updateResultImage(model.setImageFiltered(newImg));
+    return view.updateResultImage(model.setImageResult(newImg));
   }
 
   /**
@@ -278,7 +279,7 @@ public class Controller implements ImageManipulationController {
    */
   public boolean transformResize(double scale) {
     double newScale = Util.clamp(scale, 0.1, 2.0);
-    Image image = model.getImageFiltered();
+    Image image = model.getImageResult();
     double currentScale = model.getCurrentScale();
 
     if (currentScale != newScale) {
@@ -286,7 +287,7 @@ public class Controller implements ImageManipulationController {
       Image newImg = ConvertImage.resize(image, newScale / currentScale);
       App.LOGGER.log("new height: " + newImg.getHeight());
       model.setCurrentScale(newScale);
-      return view.updateResultImage(model.setImageFiltered(newImg));
+      return view.updateResultImage(model.setImageResult(newImg));
     }
     return false;
   }
@@ -296,7 +297,7 @@ public class Controller implements ImageManipulationController {
    * @return
    */
   public boolean displayPixelShiftDialog() {
-    if (model.getImageFiltered() == null)
+    if (model.getImageResult() == null)
       return false;
     SliderDialog dialog = new SliderDialog(mainStage, "Pixel shift amount", 1, -255.0, 255.0, 0);
     Optional<Double> result = dialog.showAndWait();
@@ -314,7 +315,7 @@ public class Controller implements ImageManipulationController {
    * @return
    */
   public boolean displayPixelScaleDialog() {
-    if (model.getImageFiltered() == null)
+    if (model.getImageResult() == null)
       return false;
     SliderDialog dialog = new SliderDialog(mainStage, "Pixel scale amount", 1.0, 0.1, 2.0, 2);
     Optional<Double> result = dialog.showAndWait();
@@ -332,7 +333,7 @@ public class Controller implements ImageManipulationController {
    * @return
    */
   public boolean displayResizeDialog() {
-    if (model.getImageFiltered() == null)
+    if (model.getImageResult() == null)
       return false;
     SliderDialog dialog = new SliderDialog(mainStage, "Scale amount", model.getCurrentScale(), 0.1, 2.0, 2);
     Optional<Double> result = dialog.showAndWait();
@@ -351,7 +352,7 @@ public class Controller implements ImageManipulationController {
   // * @return
   // */
   // public boolean displayDoubleDialog(Consumer<? super Double> consumer) {
-  // if (model.getImageFiltered() == null)
+  // if (model.getImageResult() == null)
   // return false;
 
   // SliderDialog dialog = new SliderDialog(mainStage, "Scale amount",
@@ -372,12 +373,12 @@ public class Controller implements ImageManipulationController {
    * @return
    */
   public boolean pixelShift(double amount) {
-    Image image = model.getImageFiltered();
+    Image image = model.getImageResult();
     if (image == null)
       return false;
     int intAmount = ((Double) amount).intValue();
     Image newImg = ConvertImage.pixelShift(image, intAmount);
-    return view.updateResultImage(model.setImageFiltered(newImg));
+    return view.updateResultImage(model.setImageResult(newImg));
   }
 
   /**
@@ -386,18 +387,18 @@ public class Controller implements ImageManipulationController {
    * @return
    */
   public boolean pixelScale(double amount) {
-    Image image = model.getImageFiltered();
+    Image image = model.getImageResult();
     if (image == null)
       return false;
     Image newImg = ConvertImage.pixelScale(image, amount);
-    return view.updateResultImage(model.setImageFiltered(newImg));
+    return view.updateResultImage(model.setImageResult(newImg));
   }
 
   /**
    * 
    */
   public boolean filterNegative() {
-    // Image image = model.getImageFiltered();
+    // Image image = model.getImageResult();
     // Image image = layerstack.getActiveLayer().getFilteredImg();
     Layer activeLayer = layerstack.getActiveLayer();
     boolean isNegative = activeLayer.isNegative();
@@ -411,7 +412,7 @@ public class Controller implements ImageManipulationController {
     Image newImg = ConvertImage.negative(image);
     activeLayer.flipNegative();
     activeLayer.updateFilteredImage();
-    return view.updateResultImage(model.setImageFiltered(newImg));
+    return view.updateResultImage(model.setImageResult(newImg));
   }
 
   // ZOOM
@@ -435,11 +436,11 @@ public class Controller implements ImageManipulationController {
    * 
    * @return
    */
-  public boolean negativeFilterByButton() {
-    Image newImg = layerstack.setStackRenderAt(layerstack.size() - 1);
-    Image filtered = model.setImageFiltered(newImg);
-    return view.updateResultImage(filtered);
-  }
+  // public boolean negativeFilterByButton() {
+  //   Image newImg = layerstack.setStackRenderAt(layerstack.size() - 1);
+  //   Image filtered = model.setImageResult(newImg);
+  //   return view.updateResultImage(filtered);
+  // }
 
   /**
    * Preparing the main stage of the app

@@ -1,6 +1,7 @@
 package app.mvc.models;
 
 import app.App;
+import app.utils.ConvertImage;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.image.Image;
@@ -76,12 +77,17 @@ public class LayerStack {
 
   // remove active (selected) layer from the stack
   public boolean removeLayer() {
-    return (activeLayerIndex<0 || stack.remove(activeLayerIndex) == null);
+    return (activeLayerIndex < 0 || stack.remove(activeLayerIndex) == null);
   }
 
   // getter for the currently active layer's index
   public int getActiveLayerIndex() {
     return activeLayerIndex;
+  }
+
+  public boolean setActiveLayerIndex(int i) {
+    activeLayerIndex = i;
+    return true;
   }
 
   // getter for the Layer at active position
@@ -115,27 +121,39 @@ public class LayerStack {
   }
 
   // get a given layer's current render, top: stack.size()-1
-  public Image getStackRenderAt(int i) {
-    if(i<0) return null;
-    return getLayer(i).getLocalRender();
-  }
-
-  public Image setStackRenderAt(int i) {
-    Image render;
-    Layer layer = getLayer(i);
-    if (i < 1) {
-      return layer.updateLocalRender(null);
-    } else {
-      // filteredImg = baseImg + filters + transforms + operations with layers below
-      // render = updateLocalFiltersAt(i);
-      // render = updateLocalTransformsAt(i);
-      // do we update on insert? yeah sure
-
-      render = layer.updateLocalRender(getStackRenderAt(i - 1));
-      return render;
+  public Image getStackRenderAt(int index) {
+    if (index < 0)
+      return null;
+    Layer layer = getLayer(index);
+    Image local = layer.getLocalRender();
+    if (local != null) {
+      return local;
     }
-    //
+    if (index == 0) {
+      return layer.setLocalRender(layer.getFilteredImg());
+    }
+    Image localRenderBelow = getStackRenderAt(index + 1); // recursive!
+    return layer.updateLocalRender(localRenderBelow);
   }
+
+  // TODO
+  // update local render at i pos, and every pos after
+  // public Image setStackRenderAt(int i) {
+  //   Image render;
+  //   Layer layer = getLayer(i);
+  //   if (i < 1) {
+  //     return layer.updateLocalRender(null);
+  //   } else {
+  //     // filteredImg = baseImg + filters + transforms + operations with layers below
+  //     // render = updateLocalFiltersAt(i);
+  //     // render = updateLocalTransformsAt(i);
+  //     // do we update on insert? yeah sure
+
+  //     render = layer.updateLocalRender(getStackRenderAt(i - 1));
+  //     return render;
+  //   }
+  //   //
+  // }
 
   // MOVING LAYERS!
   //

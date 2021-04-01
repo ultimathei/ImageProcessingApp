@@ -432,12 +432,17 @@ public class View extends Scene {
         return btn;
     }
 
+    /**
+     * Assemble a side by side split view for comparing two images
+     * @param id
+     * @return
+     */
     public SplitPane makeSplitPane(String id) {
         SplitPane sp = new SplitPane();
         sp.setId(id);
 
         ScrollPane display1 = makeCanvasHalf(originalImageView, Color.RED);
-        Pane leftHalf = makeAppComponent("left-half", "Original image", display1);
+        Pane leftHalf = makeAppComponent("left-half", "Original image of selected layer", display1);
 
         ScrollPane display2 = makeCanvasHalf(resultImageView, Color.GREEN);
         Pane rightHalf = makeAppComponent("right-half", "Result image", display2);
