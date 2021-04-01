@@ -25,19 +25,16 @@ public enum Model {
     private int paddingSize = 20;
     private int sidePaneWidth = 200;
 
-    // NOT NEEDED ??
     // The input image saved as a javafx image object
     private Image imageOriginal;
     // The modified image saved as a javafx image object
     private Image imageFiltered;
     // the current scale of the filtered image
-    private double currentScale = 1.0;
-    // ?? NOT NEEDED
+    private double currentScale = 1.0; 
 
-    // ACTION HISTORY --
+    // ACTION HISTORY -- not used yet
     // unsaved changes indicator
     private boolean hasChanged = false;
-
     // -- ACTION HISTORY NOT USED YET
 
     // -- GETTERS --

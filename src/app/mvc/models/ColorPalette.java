@@ -8,4 +8,5 @@ public enum ColorPalette {
   public static final String LIGHT_GREY = "717072";
   public static final String MID_GREY = "454647";
   public static final String DARK_GREY = "3A343C";
+  public static final String WHITE = "000000";
 }

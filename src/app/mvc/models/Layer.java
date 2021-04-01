@@ -1,5 +1,6 @@
 package app.mvc.models;
 
+import app.utils.ConvertImage;
 import javafx.scene.image.Image;
 
 /**
@@ -19,7 +20,7 @@ public class Layer {
   // and make a copy for the modificaitons (after 1+ alterations)
   private Image filteredImg;
   // the current result of the layer stack up to this layer
-  private Image currentResultImg;
+  private Image localRender;
   
   // possibe other fields -  to store the modification amounts/flags
   // these would be needed so we can recalculate the image at any time
@@ -41,7 +42,7 @@ public class Layer {
   }
   public Layer(Image baseImage, String name, String fileExtension) {
     init(baseImage);
-    this.name = name;
+    if(name!=null) this.name = name;
     this.fileExtension = fileExtension;
   }
 
@@ -59,6 +60,22 @@ public class Layer {
     posOffsetY = 0.0;
   }
 
+  // INSTANCE METHODS
+  public Image updateLocalRender(Image img){
+    return ConvertImage.pixelAdd(img, filteredImg);
+  }
+  public Image updateFilteredImage(){
+    if(baseImg==null) return null;
+
+    // negation first
+    if(filteredImg == null) setFilteredImg(getBaseImg());
+    return setFilteredImg(ConvertImage.negative(baseImg));
+
+    
+  }
+
+
+
   // -- GETTER/SETTERS --
   public Image getBaseImg(){
     return baseImg;
@@ -74,12 +91,12 @@ public class Layer {
     filteredImg = img;
     return filteredImg;
   }
-  public Image getCurrentResultImg(){
-    return currentResultImg;
+  public Image getLocalRender(){
+    return localRender;
   }
-  public Image setCurrentResultImg(Image img){
-    currentResultImg = img;
-    return currentResultImg;
+  public Image setLocalRender(Image img){
+    localRender = img;
+    return localRender;
   }
   public String getId() {
     return id;
@@ -102,12 +119,23 @@ public class Layer {
     fileExtension = s;
     return true;
   }
+  public boolean isNegative(){
+    return negative;
+  }
+  public boolean setNegative(boolean newVal){
+    negative = newVal;
+    return negative;
+  }
+  public boolean flipNegative(){
+    negative = !negative;
+    return negative;
+  }
 
   // ARITHMETIC OPERATIONS ? here or in controller!
   // 
   // public Image add(Image toAdd){
   //   // perform arithmetic addition here
-  //   // setCurrentresultImg to result of operation
+  //   // setLocalRender to result of operation
   //   Image result = toAdd;
   //   return result;
   // }

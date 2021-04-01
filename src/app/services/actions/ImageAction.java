@@ -14,4 +14,6 @@ public interface ImageAction{
     void zoomOut(Event event);
     void zoomReset(Event event);
     void setActiveLayer(AppEvent event);
+
+    // void filterNegativeBtn(Event event);
 }

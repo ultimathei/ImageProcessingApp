@@ -20,7 +20,21 @@ public class ImageActionProvider implements ImageAction {
         eventBus.addEventHandler(AppEvent.ZOOM_OUT, this::zoomOut);
         eventBus.addEventHandler(AppEvent.ZOOM_RESET, this::zoomReset);
         eventBus.addEventHandler(AppEvent.SET_ACTIVE_LAYER, this::setActiveLayer);
+
+        // testing buttons now
+        // eventBus.addEventHandler(AppEvent.NEGATIVE_BTN, this::filterNegativeBtn);
     }
+
+    // @Override
+    // public void filterNegativeBtn(Event event) {
+    //     App.LOGGER.log("filter image as its negative here..");
+    //     if (Controller.getInstance().filterNegativeBtn()) {
+    //         App.LOGGER.log("success: " + event.getEventType());
+    //         Controller.getInstance().setHasChanged(true);
+    //     } else {
+    //         App.LOGGER.log("fail: " + event.getEventType());
+    //     }
+    // }
 
     @Override
     public void filterNegative(Event event) {

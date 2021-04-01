@@ -12,14 +12,20 @@ import java.util.List;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.EventType;
+import javafx.geometry.Bounds;
+import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.geometry.VPos;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.SplitPane;
+import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.Border;
@@ -27,13 +33,19 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.BorderStroke;
 import javafx.scene.layout.BorderStrokeStyle;
 import javafx.scene.layout.BorderWidths;
+import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.CornerRadii;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.scene.transform.Scale;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -49,10 +61,11 @@ public class View extends Scene {
 
     private MenuBar menuBar;
     private StackPane zoomableCanvas;
-    private ScrollPane viewPort;
+    // private ScrollPane viewPort;
+    private SplitPane viewPort;
     private ImageView originalImageView;
     private ImageView resultImageView;
-    private BorderPane sidePane;
+    private VBox sidePane;
     private ListView<Layer> layersList;
 
     // singleton -- private constructor
@@ -62,10 +75,11 @@ public class View extends Scene {
         ServiceLocator.INSTANCE.getService(ImageAction.class);
         ServiceLocator.INSTANCE.getService(FileAction.class);
         ServiceLocator.INSTANCE.getService(EditAction.class);
+
         // add menu actions...
         // get model instance
         model = Model.INSTANCE;
-        
+
         originalImageView = new ImageView() {
             @Override
             public void requestFocus() {
@@ -77,11 +91,13 @@ public class View extends Scene {
             public void requestFocus() {
                 // disabling focus
             }
+
         };
-        
+
         // initialise
         menuBar = makeMenuBar(IdSelectors.MENU, model.getMenuStructure());
-        viewPort = makeCanvas(IdSelectors.CANVAS);
+        // viewPort = makeCanvas(IdSelectors.CANVAS);
+        viewPort = makeSplitPane(IdSelectors.CANVAS);
         sidePane = makeSidePane(IdSelectors.SIDE_PANE);
 
         // add to root
@@ -109,10 +125,61 @@ public class View extends Scene {
 
     // allowing controller to set active list item to sync up with activeIndex
     public void setSelectedLayer(int i) {
-        layersList.getSelectionModel().select(i); // set to first element
+        layersList.getSelectionModel().select(i);
     }
 
-    // -- PRIVATE INSTANCE METHODS --
+    // -- PUBLIC INSTANCE METHODS --
+
+    /**
+     * Updating the image in the image view for active object (original image of the
+     * active layer)
+     * 
+     * @return true if successfully updated, false otherwise
+     */
+    public boolean setNewOriginalimage(Image image) {
+        App.LOGGER.log("update canvas here..");
+        try {
+            originalImageView.setImage(image);
+            return true;
+        } catch (Exception e) {
+            App.LOGGER.log("Error while loading new image, error: " + e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Update the result image with a new, filtered version of the image or a
+     * completely new image (when new original is loaded)
+     * 
+     * @param image the new image
+     * @return true if successfully updated, false otherwise
+     */
+    public boolean updateResultImage(Image image) {
+        App.LOGGER.log("updating filtered image here..");
+        try {
+            // updtaing here..
+            resultImageView.setImage(image);
+            return true;
+        } catch (Exception e) {
+            App.LOGGER.log("Error while updating filtered image");
+            return false;
+        }
+    }
+
+    // ZOOM for canvas - does not scale the image files
+    public void zoomInCanvas() {
+        // zoomableCanvas.getTransforms().add(new Scale(1.2, 1.2, 0, 0));
+    }
+
+    public void zoomOutCanvas() {
+        // zoomableCanvas.getTransforms().add(new Scale(0.8, 0.8, 0, 0));
+    }
+
+    public void resetZoomCanvas() {
+        // zoomableCanvas.getTransforms().add(new Scale(1, 1, 0, 0));
+    }
+
+    // ASSEMBLE UI ELEMENTS
 
     /**
      * Assemble the side panel of the app
@@ -120,17 +187,48 @@ public class View extends Scene {
      * @param id String that is used as the id of the component
      * @return a BorderPane object
      */
-    private BorderPane makeSidePane(String id) {
-        BorderPane pane = new BorderPane();
+    private VBox makeSidePane(String id) {
+        VBox pane = new VBox();
         pane.setId(id);
         pane.setPrefWidth(model.getSidePaneWidth());
-        pane.setBackground(new Background(new BackgroundFill(Color.web(ColorPalette.DARK_GREY), null, null)));
-        pane.setBorder(new Border(new BorderStroke(Color.web(ColorPalette.DARK_GREY), BorderStrokeStyle.SOLID,
-                CornerRadii.EMPTY, new BorderWidths(0.25))));
 
-        pane.setTop(makeControls(IdSelectors.CONTROLS_PANE));
-        pane.setCenter(makeLayersPane(IdSelectors.LAYERS_PANE));
+        // pane.setTop(makeControls(IdSelectors.CONTROLS_PANE));
+        StackPane controlsPane = makeInfoStack("info-stack");
+        BorderPane controls = makeAppComponent(IdSelectors.CONTROLS_PANE, "Controls", controlsPane);
+
+        BorderPane layersPane = makeLayersPane(IdSelectors.LAYERS_PANE);
+        BorderPane layers = makeAppComponent("layers", "Layers", layersPane);
+        VBox.setVgrow(layers, Priority.ALWAYS);
+
+        pane.getChildren().addAll(controls, layers);
         return pane;
+    }
+
+    public StackPane makeInfoStack(String id) {
+        StackPane sp = new StackPane();
+        sp.setId(id);
+
+        return sp;
+    }
+
+    public GridPane makeInfoPane(Layer layer) {
+        GridPane gridPane = new GridPane();
+        gridPane.setId("info_"+layer.getId());
+        gridPane.getStyleClass().add("controls");
+        gridPane.setHgap(5);
+        gridPane.setVgap(5);
+
+        CheckBox negativeCheckBox = new CheckBox("Negative");
+        negativeCheckBox.setId("control--negative");
+
+        // set values from layer
+
+        Text testText = new Text();
+        testText.setText(layer.getId());
+
+        gridPane.add(negativeCheckBox, 0, 0);
+        gridPane.add(testText, 0, 1);
+        return gridPane;
     }
 
     /**
@@ -150,7 +248,6 @@ public class View extends Scene {
         // the layers list
         layersList = makeLayersList(IdSelectors.LAYERS_LIST);
         layersPane.setCenter(layersList);
-
         layersPane.setBottom(makeLayersPaneFooter(IdSelectors.LAYERS_PANE_FOOTER));
         return layersPane;
     }
@@ -165,11 +262,6 @@ public class View extends Scene {
         ListView<Layer> list = new ListView<>();
         list.setId(id);
         list.setBackground(new Background(new BackgroundFill(Color.web(ColorPalette.LIGHT_GREY), null, null)));
-        // setting the listView's cell factory overriding the constructor method to call
-
-        // add list items
-        // layersList.getChildren().add(makeLayersListItem(IdSelectors.LAYERS_LIST_ITEM,
-        // "Layer name - file name"));
 
         return list;
     }
@@ -208,7 +300,6 @@ public class View extends Scene {
         VBox footer = new VBox();
         footer.setId(id);
         footer.setMinHeight(30);
-        footer.setBackground(new Background(new BackgroundFill(Color.web(ColorPalette.DARK_GREY), null, null)));
         return footer;
     }
 
@@ -250,12 +341,43 @@ public class View extends Scene {
         controlPaneBtns.add(makeControlsPaneButton(IdSelectors.CONTROLS_BUTTON_ZOOM_IN, "Zoom in", AppEvent.ZOOM_IN));
         controlPaneBtns
                 .add(makeControlsPaneButton(IdSelectors.CONTROLS_BUTTON_ZOOM_OUT, "Zoom out", AppEvent.ZOOM_OUT));
-        // controlPaneBtns.add(makeControlsPaneButton("Zoom reset",
-        // AppEvent.ZOOM_RESET));
+        controlPaneBtns.add(makeControlsPaneButton("test-button-id-666", "Test", AppEvent.NEGATIVE_BTN));
 
         pane.getChildren().addAll(controlPaneBtns);
 
         return pane;
+    }
+
+    /**
+     * A generic component for UI elements
+     * 
+     * @param id
+     * @param name
+     * @param bodyContent
+     * @return
+     */
+    private BorderPane makeAppComponent(String id, String name, Node bodyContent) {
+        BorderPane container = new BorderPane();
+        container.setId(id);
+
+        HBox head = new HBox();
+        head.getStyleClass().add("component__head");
+        head.setMaxHeight(20);
+        head.setPrefHeight(20);
+        Text title = new Text();
+        title.getStyleClass().add("head__text");
+        title.setText(name);
+        head.getChildren().addAll(title);
+
+        BorderPane body = new BorderPane();
+        body.getStyleClass().add("component__body");
+        body.setMinHeight(200);
+        if (bodyContent != null)
+            body.setCenter(bodyContent);
+
+        container.setTop(head);
+        container.setCenter(body);
+        return container;
     }
 
     /**
@@ -275,74 +397,54 @@ public class View extends Scene {
         return btn;
     }
 
-    /**
-     * Assemble the canvas object (the image editor area)
-     * 
-     * @param id String that is used as the id of the pane component
-     * @return the canvas area as a ScrollPane object
-     */
-    public ScrollPane makeCanvas(String id) {
-        viewPort = new ScrollPane();
-        viewPort.setId(id);
-        viewPort.setPannable(true);
+    public SplitPane makeSplitPane(String id) {
+        SplitPane sp = new SplitPane();
+        sp.setId(id);
 
-        zoomableCanvas = new StackPane();
-        zoomableCanvas.setMinSize(3000, 3000);
-        zoomableCanvas.setMaxSize(3000, 3000);
-        zoomableCanvas.setBackground(new Background(new BackgroundFill(Color.AZURE, null, null)));
-        zoomableCanvas.getChildren().add(makeSplitView(IdSelectors.CANVAS_SPLIT_BOX));
+        ScrollPane display1 = makeCanvasHalf(originalImageView, Color.RED);
+        Pane leftHalf = makeAppComponent("left-half", "Original image", display1);
 
-        viewPort.setContent(zoomableCanvas);
+        ScrollPane display2 = makeCanvasHalf(resultImageView, Color.GREEN);
+        Pane rightHalf = makeAppComponent("right-half", "Result image", display2);
+        sp.getItems().addAll(leftHalf, rightHalf);
 
-        return viewPort;
+        return sp;
     }
 
     /**
-     * Assembles a side-by-side split view of two image views (original and result)
+     * Displaying the image viewer in one half of the SplitPane
      * 
-     * @param id String that is used as the id of the box component
-     * @return the split view box as an HBox object
+     * @param iv
+     * @param c
+     * @return
      */
-    private HBox makeSplitView(String id) {
-        ScrollPane sp1 = makeImageView(IdSelectors.CANVAS_ORIGINAL, originalImageView);
-        ScrollPane sp2 = makeImageView(IdSelectors.CANVAS_RESULT, resultImageView);
-        HBox box = new HBox();
-        box.setId(id);
-        box.getChildren().addAll(sp1, sp2);
-        box.setBackground(new Background(new BackgroundFill(Color.LIGHTGRAY, null, null)));
-        box.setPadding(new Insets(model.getPaddingSize()));
-        box.setAlignment(Pos.TOP_LEFT);
-        box.setSpacing(10);
-        return box;
-    }
-
-    /**
-     * Assembles a single image view to be used to diplay an image
-     * 
-     * @param id    String that is used as the id of the component
-     * @param image binding the image object to the view
-     * @return a scrollable image view as a ScrollPane object
-     */
-    private ScrollPane makeImageView(String id, ImageView iv) {
-        // display imageView and add original image inside
+    public ScrollPane makeCanvasHalf(ImageView iv, Color c) {
+        StackPane centeredPane = new StackPane();
+        centeredPane.setPrefSize(model.getViewerWidth(), model.getViewerHeight());
+        centeredPane.getChildren().add(iv);
         iv.setPreserveRatio(true);
-        iv.setSmooth(true);
-        iv.setCache(true);
-        iv.setFocusTraversable(false);
-        iv.setId(id);
 
-        double w = model.getViewerWidth() + 3.0;
-        double h = model.getViewerHeight() + 3.0;
-        ScrollPane scrollableWrap = new ScrollPane() {
-            @Override
-            public void requestFocus() {
-                //
-            }
-        };
-        scrollableWrap.setContent(iv);
-        scrollableWrap.setMaxSize(w, h);
-        scrollableWrap.setMinSize(w, h);
-        return scrollableWrap;
+        GridPane outerPane = new GridPane();
+        RowConstraints row = new RowConstraints();
+        row.setPercentHeight(100);
+        row.setFillHeight(false);
+        row.setValignment(VPos.CENTER);
+        outerPane.getRowConstraints().add(row);
+
+        ColumnConstraints col = new ColumnConstraints();
+        col.setPercentWidth(100);
+        col.setFillWidth(false);
+        col.setHalignment(HPos.CENTER);
+        outerPane.getColumnConstraints().add(col);
+
+        outerPane.add(centeredPane, 0, 0);
+
+        ScrollPane rootPane = new ScrollPane();
+        rootPane.setHbarPolicy(ScrollBarPolicy.AS_NEEDED);
+        rootPane.setVbarPolicy(ScrollBarPolicy.AS_NEEDED);
+        rootPane.setContent(outerPane);
+
+        return rootPane;
     }
 
     /**
@@ -352,8 +454,8 @@ public class View extends Scene {
      * @return the menubar object
      */
     private MenuBar makeMenuBar(String id, List<Pair<String, List<Pair<String, EventType<AppEvent>>>>> menus) {
-        MenuBar menuBar = new MenuBar();
-        menuBar.setId(id);
+        MenuBar mb = new MenuBar();
+        mb.setId(id);
 
         for (Pair<String, List<Pair<String, EventType<AppEvent>>>> entry : menus) {
             Menu menu = new Menu(entry.getKey());
@@ -364,59 +466,10 @@ public class View extends Scene {
                 menuItem.setOnAction(event -> eventBus.fireEvent(new AppEvent(menuItemEntry.getValue())));
                 menu.getItems().add(menuItem);
             }
-            menuBar.getMenus().add(menu);
+            mb.getMenus().add(menu);
         }
 
-        return menuBar;
+        return mb;
     }
 
-    // -- PUBLIC INSTANCE METHODS --
-
-    /**
-     * Updating the image in the image view for active object (original image of the
-     * active layer)
-     * 
-     * @return true if successfully updated, false otherwise
-     */
-    public boolean setNewOriginalimage(Image image) {
-        App.LOGGER.log("update canvas here..");
-        try {
-            originalImageView.setImage(image);
-            return true;
-        } catch (Exception e) {
-            App.LOGGER.log("Error while loading new image, error: "+e.getMessage());
-            return false;
-        }
-    }
-
-    /**
-     * Update the result image with a new, filtered version of the image or a
-     * completely new image (when new original is loaded)
-     * 
-     * @param image the new image
-     * @return true if successfully updated, false otherwise
-     */
-    public boolean updateResultImage(Image image) {
-        App.LOGGER.log("updating filtered image here..");
-        try {
-            resultImageView.setImage(image);
-            return true;
-        } catch (Exception e) {
-            App.LOGGER.log("Error while updating filtered image");
-            return false;
-        }
-    }
-
-    // ZOOM for canvas - does not scale the image files
-    public void zoomInCanvas() {
-        zoomableCanvas.getTransforms().add(new Scale(1.2, 1.2, 0, 0));
-    }
-
-    public void zoomOutCanvas() {
-        zoomableCanvas.getTransforms().add(new Scale(0.8, 0.8, 0, 0));
-    }
-
-    public void resetZoomCanvas() {
-        zoomableCanvas.getTransforms().add(new Scale(1, 1, 0, 0));
-    }
 }

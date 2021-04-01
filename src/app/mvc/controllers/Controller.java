@@ -17,13 +17,13 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
-
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.event.EventHandler;
+import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.image.Image;
+import javafx.scene.layout.StackPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
@@ -54,6 +54,7 @@ public class Controller implements ImageManipulationController {
     originator = new Originator();
     model = Model.INSTANCE;
     view = View.getInstance();
+    view.getStylesheets().add("app/stylesheet.css");
     loadDefaultImage(); // disabled as tries to load before app
     view.initLayerStackData(layerstack.getStack(), makeLayerPanelChangeListener());
   }
@@ -67,47 +68,33 @@ public class Controller implements ImageManipulationController {
 
   /**
    * Set up the change event listener for the layer panel list changes.
+   * 
    * @return teh listener - pass in initLayerStackdata() method
    */
   public ChangeListener<Layer> makeLayerPanelChangeListener() {
     return (ObservableValue<? extends Layer> ov, Layer oldVal, Layer newVal) -> {
       // switching activeitem
       if (newVal != oldVal) {
-        // App.LOGGER.log("new value: " + newVal.getId());
         layerstack.updateActiveLayerIndexById(newVal.getId());
-        // update view images here!
-        updateOriginalImage();
+        updateInfoPanel(newVal);
+        updateOriginalImage(newVal);
+        updateFilteredImage();
       }
     };
   }
 
-  // /**
-  // * FILTER method
-  // *
-  // * @return
-  // */
-  // public boolean filter() {
-  // if (layerstack.size() < 1)
-  // return false;
-  // Layer layer = layerstack.getActiveLayer();
-  // if (layer == null)
-  // return false;
-  // Image img = layer.getFilteredImg();
-  // if (img == null)
-  // return false;
-
-  // // testing only with negative filter now
-  // Image newImg = ConvertImage.negative(img);
-
-  // // should save previous filtered state to history?
-  // Image result = layerstack.updateImage(activeLayerIndex, newImg);
-  // model.setResultImage(result);
-
-  // return true;
-  // }
+  public void updateInfoPanel(Layer layer) {
+    // update info panel here
+    try{
+      StackPane infoStack = (StackPane) mainStage.getScene().lookup("#info-stack");
+      infoStack.getChildren().setAll(view.makeInfoPane(layer));
+    } catch(Exception e) {
+      App.LOGGER.log("exception while updating info stack..");
+    }
+  }
 
   /**
-   * LOAD FILE from path
+   * LOAD FILE from path and open
    * 
    * @return
    */
@@ -151,15 +138,20 @@ public class Controller implements ImageManipulationController {
         image = ConvertImage.toJavafx(selectedFile);
       }
 
-      String fileName = selectedFile.getName();
-      String fileExtension = fileName.substring(fileName.lastIndexOf(".") + 1, fileName.length());
+      String[] nameArray = selectedFile.getName().split("\\.", -1);
+      String fileExtension = nameArray[nameArray.length-1];
+      String imageName = nameArray[nameArray.length-2];
 
       // layerstack version
-      boolean added = layerstack.addLayer(new Layer(image), true);
-      if(added) {
-        App.LOGGER.log("herererererere"+added);
+      boolean added = layerstack.addLayer(new Layer(image, imageName, fileExtension), true);
+      if (added) {
+        App.LOGGER.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!?");
+        // update view and info
         view.setSelectedLayer(layerstack.getActiveLayerIndex());
-        updateOriginalImage();
+        Layer activeLayer = layerstack.getActiveLayer();
+        updateInfoPanel(activeLayer);
+        updateOriginalImage(activeLayer);
+        updateFilteredImage();
         return true;
       }
       return false;
@@ -170,15 +162,30 @@ public class Controller implements ImageManipulationController {
   }
 
   /**
-   * Setting the original image viewer's image
-   * This always displays the current active layer's image
+   * Setting the original image viewer's image This always displays the current
+   * active layer's image
+   * 
    * @return back the newly set image
    */
-  public boolean updateOriginalImage() {
-    Image original = layerstack.getActiveLayer().getBaseImg();
-    App.LOGGER.log("original: "+(original!=null));
-    Image inModel = model.setImageOriginal(original);
+  public boolean updateOriginalImage(Layer layer) {
+    Image inModel = model.setImageOriginal(layer.getBaseImg());
     return view.setNewOriginalimage(inModel);
+  }
+
+  /**
+   * Setting the filtered image viewer's image This always displays the current
+   * active layer's image including the filters applied on it
+   * 
+   * @return back the newly set image
+   */
+  public boolean updateFilteredImage() {
+    Layer activeLayer = layerstack.getActiveLayer();
+    Image filteredImage = activeLayer.getFilteredImg();
+    if (filteredImage == null) {
+      filteredImage = activeLayer.updateFilteredImage();
+    }
+    Image inModel = model.setImageFiltered(filteredImage);
+    return view.updateResultImage(inModel);
   }
 
   /**
@@ -201,10 +208,7 @@ public class Controller implements ImageManipulationController {
   public boolean addLayer(Image img) {
     Layer layer = new Layer(img);
     boolean added = layerstack.addLayer(layer, true);
-    if (added) {
-      // add to view, update view ..
-
-    }
+    updateFilteredImage();
     return true;
   }
 
@@ -412,15 +416,24 @@ public class Controller implements ImageManipulationController {
    * 
    */
   public boolean filterNegative() {
-    Image image = model.getImageFiltered();
-    if (image == null)
-      return false;
+    // Image image = model.getImageFiltered();
+    // Image image = layerstack.getActiveLayer().getFilteredImg();
+    Layer activeLayer = layerstack.getActiveLayer();
+    boolean isNegative = activeLayer.isNegative();
+    Image image = activeLayer.getBaseImg();
+
+    if (image == null) {
+      image = activeLayer.getBaseImg();
+      if (image == null)
+        return false;
+    }
     Image newImg = ConvertImage.negative(image);
+    activeLayer.flipNegative();
+    activeLayer.updateFilteredImage();
     return view.updateResultImage(model.setImageFiltered(newImg));
   }
 
   // ZOOM
-
   public boolean zoomIn() {
     view.zoomInCanvas();
     return true;
@@ -434,6 +447,17 @@ public class Controller implements ImageManipulationController {
   public boolean zoomReset() {
     view.resetZoomCanvas();
     return true;
+  }
+
+  /**
+   * 
+   * 
+   * @return
+   */
+  public boolean negativeFilterByButton() {
+    Image newImg = layerstack.setStackRenderAt(layerstack.size() - 1);
+    Image filtered = model.setImageFiltered(newImg);
+    return view.updateResultImage(filtered);
   }
 
   /**

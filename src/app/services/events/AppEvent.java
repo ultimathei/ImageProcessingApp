@@ -56,6 +56,9 @@ public class AppEvent extends Event {
     public static final EventType<AppEvent> ZOOM_RESET
         = new EventType<>(ANY, "Zoom reset");
 
+    public static final EventType<AppEvent> NEGATIVE_BTN
+        = new EventType<>(ANY, "Negative_btn");
+
     // CONSTRUCTORs
     public AppEvent(EventType<AppEvent> type) {
         super(type);

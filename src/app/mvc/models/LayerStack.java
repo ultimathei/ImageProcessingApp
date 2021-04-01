@@ -1,10 +1,9 @@
 package app.mvc.models;
 
-import java.util.ArrayList;
-
 import app.App;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.image.Image;
 
 /**
  * An ordered list like structure to store a list of Layer objects
@@ -45,6 +44,7 @@ public class LayerStack {
 
   // getter for layer at position i
   public Layer getLayer(int i) {
+    if(i<0) return null;
     return stack.get(i);
   }
 
@@ -109,11 +109,40 @@ public class LayerStack {
     }
   }
 
+  // get a given layer's current render, top: stack.size()-1
+  public Image getStackRenderAt(int i){
+    return getLayer(i).getLocalRender();
+  }
+  public Image setStackRenderAt(int i) {
+    Image render;
+    Layer layer = getLayer(i);
+    if(i<1) {
+      return layer.updateLocalRender(null);
+    } else {
+      // filteredImg = baseImg + filters + transforms + operations with layers below
+      // render = updateLocalFiltersAt(i);
+      // render = updateLocalTransformsAt(i);
+      // do we update on insert? yeah sure
+
+      render = layer.updateLocalRender(getStackRenderAt(i-1));
+      return render;
+    }
+    // 
+  }
+
+  
+
+
+
+
+
+  // MOVING LAYERS!
+  //
   // // recursively upwards
   // public Image updateImage(int index, Image image) {
   // if(index == stack.size()) return stack.get(index).add(image);
   // Layer nextLayer = stack.get(index+1);
-  // return nextLayer.add(updateImage(index+1, nextLayer.getCurrentResultImg()));
+  // return nextLayer.add(updateImage(index+1, nextLayer.getLocalRender()));
   // }
 
   // public Layer updateActiveLayer(String id){

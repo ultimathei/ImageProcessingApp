@@ -15,11 +15,11 @@ import javax.imageio.ImageIO;
 /**
  * A utility class for image conversions
  */
-public class ConvertImage {
-  // private constructor to hide implicit public one
-  private ConvertImage() {
-    //
-  }
+public enum ConvertImage {
+  INSTANCE;
+
+  public static final int MIN_VALUE = 0;
+  public static final int MAX_VALUE = 255;
 
   /**
    * Read in File as bufferedImage, then convert to type_int_rgb finally convert
@@ -41,7 +41,6 @@ public class ConvertImage {
     return SwingFXUtils.toFXImage(biRGB, null);
   }
 
-
   /**
    * Re-scale all the pixel values of an image, stored in a matrix.
    * 
@@ -49,7 +48,7 @@ public class ConvertImage {
    * @param scalar
    * @return
    */
-  public static Image pixelShift(Image image, int amount){
+  public static Image pixelShift(Image image, int amount) {
     int width = (int) image.getWidth();
     int height = (int) image.getHeight();
     int[][][] imageArray = toArray(image);
@@ -57,16 +56,16 @@ public class ConvertImage {
     // pixel scaling operation
     for (int y = 0; y < height; y++) {
       for (int x = 0; x < width; x++) {
-        for(int i = 1; i <= 3; i++) {
+        for (int i = 1; i <= 3; i++) {
           int val = imageArray[x][y][i] + amount;
-          imageArray[x][y][i] = Util.clamp(val, 0, 255); 
+          imageArray[x][y][i] = Util.clamp(val, 0, 255);
         }
       }
     }
-    
+
     return fromArray(imageArray);
   }
-  
+
   /**
    * Re-scale all the pixel values of an image, stored in a matrix.
    * 
@@ -74,7 +73,7 @@ public class ConvertImage {
    * @param scalar
    * @return
    */
-  public static Image pixelScale(Image image, double scalar){
+  public static Image pixelScale(Image image, double scalar) {
     int width = (int) image.getWidth();
     int height = (int) image.getHeight();
     int[][][] imageArray = toArray(image);
@@ -82,18 +81,19 @@ public class ConvertImage {
     // pixel scaling operation
     for (int y = 0; y < height; y++) {
       for (int x = 0; x < width; x++) {
-        for(int i = 1; i <= 3; i++) {
-          imageArray[x][y][i] = (int) Util.clamp(imageArray[x][y][i] * scalar, 0, 255); 
+        for (int i = 1; i <= 3; i++) {
+          imageArray[x][y][i] = (int) Util.clamp(imageArray[x][y][i] * scalar, 0, 255);
         }
       }
     }
-    
+
     return fromArray(imageArray);
   }
 
   /**
-   * Resize the given image by a scalar factor
-   * using a naive nearest neighbour algorithm.
+   * Resize the given image by a scalar factor using a naive nearest neighbour
+   * algorithm.
+   * 
    * @param image
    * @param scale
    * @return
@@ -103,8 +103,8 @@ public class ConvertImage {
     int height = (int) image.getHeight();
     int[][][] imageArray = toArray(image);
 
-    int newWidth = (int)(width * scale);
-    int newHeight = (int)(height * scale);
+    int newWidth = (int) (width * scale);
+    int newHeight = (int) (height * scale);
 
     // App.LOGGER.log("new height: "+newHeight);
     // App.LOGGER.log("new width: "+newWidth);
@@ -114,17 +114,17 @@ public class ConvertImage {
     // nearest neighbour
     for (int y = 0; y < newHeight; y++) {
       for (int x = 0; x < newWidth; x++) {
-          int normalisedX;
-          int normalisedY;
-          if(scale < 1.0) {
-            normalisedX = (int) (x/scale);
-            normalisedY = (int) (y/scale);
-          } else {
-            normalisedX = (int) (x/scale);
-            normalisedY = (int) (y/scale);
-          }
-          
-          newImgArray[x][y] = imageArray[normalisedX][normalisedY];
+        int normalisedX;
+        int normalisedY;
+        if (scale < 1.0) {
+          normalisedX = (int) (x / scale);
+          normalisedY = (int) (y / scale);
+        } else {
+          normalisedX = (int) (x / scale);
+          normalisedY = (int) (y / scale);
+        }
+
+        newImgArray[x][y] = imageArray[normalisedX][normalisedY];
       }
     }
 
@@ -187,6 +187,45 @@ public class ConvertImage {
     // Convert the array to Image and return
     return fromArray(imageArray);
   }
+
+  // ARITHMETIC ADD
+  /**
+   * Arithmetic Addition of two images
+   * 
+   * @param base
+   * @param addition
+   * @return
+   */
+  public static Image pixelAdd(Image img_a, Image img_b) {
+    // convert image to array
+    int[][][] aArr = toArray(img_a);
+    int[][][] bArr = toArray(img_b);
+    // x, y size for both arrays
+    int aX = aArr[0].length;
+    int aY = aArr[1].length;
+    int bX = bArr[0].length;
+    int bY = bArr[1].length;
+    // result width and height, and the non overlapping size
+    int resX = Math.max(aX, bX);
+    int resY = Math.max(aY, bY);
+    // declaration fills with zeros
+    int[][][] result = new int[resX][resY][4];
+
+    // Matrix addition with bleeding edges
+    // repeat with four layers
+    for (int j = 0; j < aY; j++) {
+      for (int i = 0; i < aX; i++) {
+        for (int k = 0; k < 4; k++) {
+          result[i][j][k] += (i > aX || j > aY) ? 0 : aArr[i][j][k];
+          result[i][j][k] += (i > bX || j > bY) ? 0 : bArr[i][j][k];
+          result[i][j][k] = Util.clamp(result[i][j][k], MIN_VALUE, MAX_VALUE);
+        }
+      }
+    }
+    // convert back to image
+    return fromArray(result);
+  }
+  // private static int[][][] pixelAddArray(int[][][] array1, int[][][] array2) {}
 
   /**
    * Convert the Image object to a 3D integer array using a PixelReader to get
@@ -254,5 +293,16 @@ public class ConvertImage {
       }
     }
     return newImg;
+  }
+
+  /**
+   * Helper function to nullify values that are out of bound
+   * 
+   * @param i
+   * @param max
+   * @return
+   */
+  private static int nullifyOutOfBound(int i, int max) {
+    return (i > max) ? 0 : i;
   }
 }

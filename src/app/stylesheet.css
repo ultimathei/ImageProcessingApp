@@ -1,0 +1,38 @@
+/* color variables */
+* {
+  -fx-color-gray-purple: #625366;
+  -fx-color-gray-blue: #142b36;
+  -fx-color-gray-light: #717072;
+  -fx-color-gray-mid: #454647;
+  -fx-color-gray-dark: #3a343c;
+  -fx-color-white: #ffffff;
+  -fx-color-test: #ff0000;
+}
+
+/* IDs */
+
+/* Classes */
+
+.component__head {
+  -fx-background-color: -fx-color-gray-dark;
+  -fx-padding: 5 5 5 5;
+}
+
+.head__text {
+  -fx-color: -fx-color-white;
+  -fx-fill: -fx-color-white;
+}
+
+.component__body {
+  -fx-background-color: -fx-color-gray-mid;
+}
+
+.controls {
+  -fx-padding: 5 5 5 5;
+}
+
+.controls * {
+  -fx-text-fill: -fx-color-white;
+  -fx-color: -fx-color-white;
+  -fx-fill: -fx-color-white;
+}
