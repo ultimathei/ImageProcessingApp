@@ -12,10 +12,7 @@ import java.util.List;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.EventType;
-import javafx.geometry.Bounds;
 import javafx.geometry.HPos;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.geometry.VPos;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
@@ -100,7 +97,6 @@ public class View extends Scene {
 
         // initialise
         menuBar = makeMenuBar(IdSelectors.MENU, model.getMenuStructure());
-        // viewPort = makeCanvas(IdSelectors.CANVAS);
         viewPort = makeSplitPane(IdSelectors.CANVAS);
         sidePane = makeSidePane(IdSelectors.SIDE_PANE);
 

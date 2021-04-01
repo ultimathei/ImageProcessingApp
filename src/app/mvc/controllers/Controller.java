@@ -54,7 +54,8 @@ public class Controller implements ImageManipulationController {
     view = View.getInstance();
     view.getStylesheets().add("app/stylesheet.css");
     view.initLayerStackData(layerstack.getStack(), makeLayerPanelChangeListener());
-    if(loadDefault) loadDefaultImage();
+    if (loadDefault)
+      openImage(model.getDefaultImagePath());
   }
 
   // singleton instance getter
@@ -62,40 +63,6 @@ public class Controller implements ImageManipulationController {
     if (instance == null)
       instance = new Controller(true);
     return instance;
-  }
-
-  /**
-   * Set up the change event listener for the layer panel list changes.
-   * 
-   * @return teh listener - pass in initLayerStackdata() method
-   */
-  public ChangeListener<Layer> makeLayerPanelChangeListener() {
-    return (ObservableValue<? extends Layer> ov, Layer oldVal, Layer newVal) -> {
-      // switching activeitem
-      if (newVal != oldVal) {
-        layerstack.updateActiveLayerIndexById(newVal.getId());
-        updateOriginalImage(newVal);
-      }
-    };
-  }
-
-  public boolean updateInfoPanel(Layer layer) {
-    // update info panel here
-    try{
-      return view.updateInfoStack(layer);
-    } catch(Exception e) {
-      App.LOGGER.log("exception while updating info stack..");
-      return false;
-    }
-  }
-
-  /**
-   * LOAD FILE from path and open
-   * 
-   * @return
-   */
-  public boolean loadDefaultImage() {
-    return openImage("/Users/ultimathei/macDocs/code_local/ImageProcessingApp/src/images/Barbara.bmp");
   }
 
   /**
@@ -129,8 +96,8 @@ public class Controller implements ImageManipulationController {
       image = new Image(new FileInputStream(selectedFile));
 
       String[] nameArray = selectedFile.getName().split("\\.", -1);
-      String fileExtension = nameArray[nameArray.length-1];
-      String imageName = nameArray[nameArray.length-2];
+      String fileExtension = nameArray[nameArray.length - 1];
+      String imageName = nameArray[nameArray.length - 2];
 
       // test if the javafx image was constructed correctly
       if (image.isError()) {
@@ -150,6 +117,37 @@ public class Controller implements ImageManipulationController {
       return false;
     } catch (Exception e) {
       App.LOGGER.log("Image not found or corrupt file");
+      return false;
+    }
+  }
+
+  /**
+   * Set up the change event listener for the layer panel list changes.
+   * 
+   * @return teh listener - pass in initLayerStackdata() method
+   */
+  public ChangeListener<Layer> makeLayerPanelChangeListener() {
+    return (ObservableValue<? extends Layer> ov, Layer oldVal, Layer newVal) -> {
+      // switching activeitem
+      if (newVal != oldVal) {
+        layerstack.updateActiveLayerIndexById(newVal.getId());
+        updateOriginalImage(newVal);
+      }
+    };
+  }
+
+  /**
+   * Updating the details in the info panel located at the top of the side panel
+   * 
+   * @param layer
+   * @return
+   */
+  public boolean updateInfoPanel(Layer layer) {
+    // update info panel here
+    try {
+      return view.updateInfoStack(layer);
+    } catch (Exception e) {
+      App.LOGGER.log("exception while updating info stack..");
       return false;
     }
   }
@@ -192,18 +190,18 @@ public class Controller implements ImageManipulationController {
     return layerstack.updateActiveLayerIndexById(id);
   }
 
-  /**
-   * Add a new layer to the layerstack when openning an image file. Newly added
-   * image is made the active layer
-   * 
-   * @return
-   */
-  public boolean addLayer(Image img) {
-    Layer layer = new Layer(img);
-    boolean added = layerstack.addLayer(layer, true);
-    updateFilteredImage();
-    return true;
-  }
+  // /**
+  //  * Add a new layer to the layerstack when openning an image file. Newly added
+  //  * image is made the active layer
+  //  * 
+  //  * @return
+  //  */
+  // public boolean addLayer(Image img) {
+  //   Layer layer = new Layer(img);
+  //   boolean added = layerstack.addLayer(layer, true);
+  //   updateFilteredImage();
+  //   return true;
+  // }
 
   /**
    * Check if the application is safe to quit (from menu quit)

@@ -6,9 +6,8 @@ import javafx.collections.ObservableList;
 import javafx.scene.image.Image;
 
 /**
- * An ordered list like structure to store a list of Layer objects
- * To be used by layersPane to create a stack of images
- * then calculate the resulting images
+ * An ordered list like structure to store a list of Layer objects To be used by
+ * layersPane to create a stack of images then calculate the resulting images
  */
 public class LayerStack {
   // the singleton instance
@@ -44,7 +43,8 @@ public class LayerStack {
 
   // getter for layer at position i
   public Layer getLayer(int i) {
-    if(i<0) return null;
+    if (i < 0)
+      return null;
     return stack.get(i);
   }
 
@@ -55,12 +55,12 @@ public class LayerStack {
 
   // make active should be true for now, so the new layer is added to the top
   public boolean addLayer(Layer layer, boolean makeActive) {
-    if (!stack.add(layer))
-      return false;
+    // add new layer to start of the list
+    stack.add(0, layer);
     if (makeActive)
-      activeLayerIndex = stack.size() - 1;
+      activeLayerIndex = 0;
     // should also calculate the currentresult?
-    App.LOGGER.log("Layer added, stack size now: "+stack.size());
+    App.LOGGER.log("Layer added, stack size now: " + stack.size());
     return true;
   }
 
@@ -69,7 +69,7 @@ public class LayerStack {
     if (!stack.remove(layer))
       return false;
     // set top layer as active
-    activeLayerIndex = stack.size() - 1;
+    activeLayerIndex = 0;
     // should also update the currentresult for effected layers?
     return true;
   }
@@ -100,8 +100,8 @@ public class LayerStack {
   // update index or return -1
   public boolean updateActiveLayerIndexById(String id) {
     int index = findLayerIndexFor(id);
-    if(index > -1) {
-      App.LOGGER.log("updating active index to: "+index);
+    if (index > -1) {
+      App.LOGGER.log("updating active index to: " + index);
       activeLayerIndex = index;
       return true;
     } else {
@@ -110,13 +110,14 @@ public class LayerStack {
   }
 
   // get a given layer's current render, top: stack.size()-1
-  public Image getStackRenderAt(int i){
+  public Image getStackRenderAt(int i) {
     return getLayer(i).getLocalRender();
   }
+
   public Image setStackRenderAt(int i) {
     Image render;
     Layer layer = getLayer(i);
-    if(i<1) {
+    if (i < 1) {
       return layer.updateLocalRender(null);
     } else {
       // filteredImg = baseImg + filters + transforms + operations with layers below
@@ -124,17 +125,11 @@ public class LayerStack {
       // render = updateLocalTransformsAt(i);
       // do we update on insert? yeah sure
 
-      render = layer.updateLocalRender(getStackRenderAt(i-1));
+      render = layer.updateLocalRender(getStackRenderAt(i - 1));
       return render;
     }
-    // 
+    //
   }
-
-  
-
-
-
-
 
   // MOVING LAYERS!
   //

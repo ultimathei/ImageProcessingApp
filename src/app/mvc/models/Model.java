@@ -16,6 +16,8 @@ public enum Model {
 
     private MenuModel menuModel = MenuModel.INSTANCE;
 
+    private final String DEFAULT_IMAGE_PATH = "/Users/ultimathei/macDocs/code_local/ImageProcessingApp/src/images/Barbara.bmp";
+
     // List of supported image formats
     private String[] formats = { "bmp", "gif", "tif", "jpeg", "jpg", "png" };
 
@@ -80,7 +82,9 @@ public enum Model {
     public double getCurrentScale() {
         return currentScale;
     }
-
+    public String getDefaultImagePath(){
+        return DEFAULT_IMAGE_PATH;
+    }
 
     // -- SETTERS --
     public Image setImageOriginal(Image newImage) {
