@@ -92,18 +92,12 @@ public class Layer {
   }
 
   public boolean shiftScale1(int shift, double scale) {
-    int validShift = (shift < -256) ? -256 : (shift > 255) ? 255 : shift;
-    double validScale = (scale < 0.0) ? 0.0 : (scale > 2.0) ? 2.0 : scale;
-    // filteredImg = ConvertImage.shiftAndScale2(getFilteredImg(), validShift,
-    // validScale);
-    filteredImg = ConvertImage.shiftAndScale(getFilteredImg(), validShift, validScale);
+    filteredImg = ConvertImage.shiftAndScale(getFilteredImg(), shift, scale);
     return true;
   }
 
   public boolean shiftScale2(int shift, double scale) {
-    int validShift = (shift < -256) ? -256 : (shift > 255) ? 255 : shift;
-    double validScale = (scale < 0.0) ? 0.0 : (scale > 2.0) ? 2.0 : scale;
-    filteredImg = ConvertImage.shiftAndScale2(getFilteredImg(), validShift, validScale);
+    filteredImg = ConvertImage.shiftAndScale2(getFilteredImg(), shift, scale);
     return true;
   }
 

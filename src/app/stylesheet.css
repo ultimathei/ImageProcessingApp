@@ -27,18 +27,15 @@
   -fx-background-color: -fx-color-gray-mid;
 }
 
-.controls {
+.controls,
+.info {
   -fx-padding: 5 5 5 5;
 }
 
-.controls * {
+.info * {
   -fx-text-fill: -fx-color-white;
   -fx-color: -fx-color-white;
   -fx-fill: -fx-color-white;
-}
-
-.layer {
-
 }
 
 .layer__name {

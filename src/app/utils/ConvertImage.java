@@ -377,7 +377,7 @@ public enum ConvertImage {
     for (int y = 0; y < height; y++) {
       for (int x = 0; x < width; x++) {
         // 1.0-amount
-        imageArray[x][y][0] -= (int) (amount * 255); // a
+        imageArray[x][y][0] = (int) (amount * 255); // a
       }
     }
 

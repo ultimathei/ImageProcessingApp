@@ -22,6 +22,7 @@ public class ImageActionProvider implements ImageAction {
         eventBus.addEventHandler(AppEvent.SET_ACTIVE_LAYER, this::setActiveLayer);
         eventBus.addEventHandler(AppEvent.SET_TRANSPARENCY, this::setTransparency);
         eventBus.addEventHandler(AppEvent.SHIFT_SCALE, this::shiftScale);
+        eventBus.addEventHandler(AppEvent.SHIFT_SCALE_2, this::shiftScale2);
 
         // testing buttons now
         // eventBus.addEventHandler(AppEvent.NEGATIVE_BTN, this::filterNegativeBtn);
@@ -163,6 +164,17 @@ public class ImageActionProvider implements ImageAction {
     public void shiftScale(AppEvent event) {
         App.LOGGER2.log("Shift scale here");
         if (Controller.getInstance().applyFilterShiftScale(event.getShiftAmount(), event.getScaleAmount())) {
+            App.LOGGER2.log("success: " + event.getEventType());
+            // Controller.getInstance().setHasChanged(true);
+        } else {
+            App.LOGGER.log("fail: " + event.getEventType());
+        }
+    }
+
+    @Override
+    public void shiftScale2(AppEvent event) {
+        App.LOGGER2.log("Shift scale 2 here");
+        if (Controller.getInstance().applyFilterShiftScale2(event.getShiftAmount(), event.getScaleAmount())) {
             App.LOGGER2.log("success: " + event.getEventType());
             // Controller.getInstance().setHasChanged(true);
         } else {

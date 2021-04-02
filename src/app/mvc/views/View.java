@@ -5,22 +5,22 @@ import app.mvc.models.*;
 import app.services.actions.*;
 import app.services.events.*;
 import app.utils.*;
-
-import java.util.ArrayList;
 import java.util.List;
-
 import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.event.EventType;
 import javafx.geometry.HPos;
 import javafx.geometry.VPos;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.Slider;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.layout.Background;
@@ -66,6 +66,13 @@ public class View extends Scene {
     private ImageView resultImageView;
     private VBox sidePane;
     private ListView<Layer> layersList;
+
+    final Slider shiftLevel = new Slider(-256, 255, 0);
+    final Label shiftValue = new Label(Double.toString(shiftLevel.getValue()));
+    final Slider scaleLevel = new Slider(0.0, 2.0, 1.0);
+    final Label scaleValue = new Label(Double.toString(scaleLevel.getValue()));
+    final Slider transparencyLevel = new Slider(0.0, 1.0, 1.0);
+    final Label transparencyValue = new Label(Double.toString(transparencyLevel.getValue()));
 
     // singleton -- private constructor
     private View() {
@@ -199,12 +206,14 @@ public class View extends Scene {
         VBox pane = new VBox();
         pane.setId(id);
         pane.setPrefWidth(model.getSidePaneWidth());
-        BorderPane controls = makeAppComponent(IdSelectors.CONTROLS_PANE, "Controls", infoStack);
+        BorderPane info = makeAppComponent(IdSelectors.INFO_PANE, "Layer Info", infoStack);
+        BorderPane controls = makeAppComponent(IdSelectors.CONTROLS_PANE, "Controls/effects",
+                makeControlsPanel("controls-new"));
         BorderPane layersPane = makeLayersPane(IdSelectors.LAYERS_PANE);
         BorderPane layers = makeAppComponent("layers", "Layers", layersPane);
         VBox.setVgrow(layers, Priority.ALWAYS);
 
-        pane.getChildren().addAll(controls, layers);
+        pane.getChildren().addAll(info, controls, layers);
         return pane;
     }
 
@@ -228,7 +237,7 @@ public class View extends Scene {
      */
     public GridPane makeInfoPane(Layer layer) {
         GridPane gridPane = new GridPane();
-        gridPane.getStyleClass().add("controls");
+        gridPane.getStyleClass().add("info");
         gridPane.setHgap(5);
         gridPane.setVgap(5);
 
@@ -245,16 +254,71 @@ public class View extends Scene {
             gridPane.add(new Text("File extension: "), 0, 2);
             String extension = (layer.getFileExtension() != null) ? layer.getFileExtension() : "not set";
             gridPane.add(new Text(extension), 1, 2);
-
-            CheckBox negativeCheckBox = new CheckBox("Negative");
-            negativeCheckBox.setId("control--negative");
-            gridPane.add(negativeCheckBox, 0, 3);
         } else {
             gridPane.setId("info_empty");
             gridPane.add(new Text("No layer selected! Open an image to create a layer!"), 0, 0);
         }
 
         return gridPane;
+    }
+
+    /**
+     * Assemble the layers panel footer
+     * 
+     * @param id String that is used as the id of the layer component
+     * @return the footer as a VBox object
+     */
+    private GridPane makeControlsPanel(String id) {
+        GridPane controls = new GridPane();
+        controls.setId(id);
+        controls.getStyleClass().add("controls");
+        controls.setHgap(5);
+        controls.setVgap(5);
+
+        CheckBox negativeCheckBox = new CheckBox("Negative");
+        negativeCheckBox.setId("control--negative");
+        controls.add(negativeCheckBox, 0, 0);
+
+        controls.add(new Label("Shift value: "), 0, 1);
+        controls.add(shiftValue, 1, 1);
+        shiftLevel.valueProperty().addListener((ObservableValue<? extends Number> ov, Number old_val,
+                Number new_val) -> shiftValue.setText(String.format("%2f", new_val)));
+        GridPane.setColumnSpan(shiftLevel, 3);
+        controls.add(shiftLevel, 0, 2);
+
+        controls.add(new Label("Scale value: "), 0, 3);
+        controls.add(scaleValue, 1, 3);
+        scaleLevel.valueProperty().addListener((ObservableValue<? extends Number> ov, Number old_val,
+                Number new_val) -> scaleValue.setText(String.format("%2f", new_val)));
+        GridPane.setColumnSpan(scaleLevel, 3);
+        controls.add(scaleLevel, 0, 4);
+
+        controls.add(new Label("Apply scale and shift:"), 0, 5);
+
+        Button shiftScaleBtn = new Button("v1");
+        shiftScaleBtn.setOnAction(event -> eventBus.fireEvent(new AppEvent(AppEvent.SHIFT_SCALE,
+                shiftLevel.valueProperty().intValue(), scaleLevel.valueProperty().doubleValue())));
+        controls.add(shiftScaleBtn, 1, 5);
+
+        Button shiftScaleBtn2 = new Button("v2");
+        shiftScaleBtn2.setOnAction(event -> eventBus.fireEvent(new AppEvent(AppEvent.SHIFT_SCALE_2,
+                shiftLevel.valueProperty().intValue(), scaleLevel.valueProperty().doubleValue())));
+        controls.add(shiftScaleBtn2, 2, 5);
+
+        controls.add(new Label("Transparency: "), 0, 6);
+        controls.add(transparencyValue, 1, 6);
+        transparencyLevel.valueProperty().addListener((ObservableValue<? extends Number> ov, Number old_val,
+                Number new_val) -> transparencyValue.setText(String.format("%2f", new_val)));
+        GridPane.setColumnSpan(transparencyLevel, 3);
+        controls.add(transparencyLevel, 0, 7);
+
+        Button transBtn = new Button("Apply transparency");
+        transBtn.setOnAction(event -> eventBus
+                .fireEvent(new AppEvent(AppEvent.SET_TRANSPARENCY, transparencyLevel.valueProperty().doubleValue())));
+        GridPane.setColumnSpan(transBtn, 3);
+        controls.add(transBtn, 0, 8);
+
+        return controls;
     }
 
     /**
@@ -331,15 +395,10 @@ public class View extends Scene {
         Button removeBtn = new Button("-");
         removeBtn.setOnAction(event -> eventBus.fireEvent(new AppEvent(AppEvent.REMOVE_LAYER)));
 
-        Button transBtn = new Button("T=0.5");
-        transBtn.setOnAction(event -> eventBus.fireEvent(new AppEvent(AppEvent.SET_TRANSPARENCY, 0.5)));
-        Button shiftScaleBtn = new Button("S+T");
-        shiftScaleBtn.setOnAction(event -> eventBus.fireEvent(new AppEvent(AppEvent.SHIFT_SCALE, 10, 1.0)));
-
         Region emptyRegion = new Region();
         HBox.setHgrow(emptyRegion, Priority.ALWAYS);
 
-        footer.getChildren().addAll(transBtn, shiftScaleBtn, emptyRegion, removeBtn, addBtn);
+        footer.getChildren().addAll(emptyRegion, removeBtn, addBtn);
 
         return footer;
     }
@@ -384,7 +443,7 @@ public class View extends Scene {
 
         BorderPane body = new BorderPane();
         body.getStyleClass().add("component__body");
-        body.setMinHeight(200);
+        body.setMinHeight(100);
         if (bodyContent != null)
             body.setCenter(bodyContent);
 
@@ -412,6 +471,7 @@ public class View extends Scene {
 
     /**
      * Assemble a side by side split view for comparing two images
+     * 
      * @param id
      * @return
      */

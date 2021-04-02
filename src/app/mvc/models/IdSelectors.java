@@ -11,6 +11,7 @@ public enum IdSelectors {
 
   public static final String SIDE_PANE = "app__sidepane";
   public static final String CONTROLS_PANE = "side__controls-pane";
+  public static final String INFO_PANE = "side__info-pane";
   public static final String LAYERS_PANE = "side__layers-pane";
   
   public static final String CONTROLS_BUTTON = "controls-pane__button";

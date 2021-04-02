@@ -71,6 +71,9 @@ public class AppEvent extends Event {
     public static final EventType<AppEvent> SHIFT_SCALE
         = new EventType<>(ANY, "Shift and scale");
 
+    public static final EventType<AppEvent> SHIFT_SCALE_2
+        = new EventType<>(ANY, "Shift and scale 2");
+
     // CONSTRUCTORs
     public AppEvent(EventType<AppEvent> type) {
         super(type);

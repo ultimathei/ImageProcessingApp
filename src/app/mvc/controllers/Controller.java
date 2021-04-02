@@ -207,11 +207,11 @@ public class Controller implements ImageManipulationController {
   
   public boolean applyFilterShiftScale(int shift, double scale) {
     return layerstack.getActiveLayer().shiftScale1(shift, scale) && updateResultImage(layerstack.size());
-    //&& updateInfoPanel(layerstack.getActiveLayer());
-    // return layerstack.getActiveLayer().filterNegative()!=null && updateResultImage(layerstack.size());
   }
 
-
+  public boolean applyFilterShiftScale2(int shift, double scale) {
+    return layerstack.getActiveLayer().shiftScale2(shift, scale) && updateResultImage(layerstack.size());
+  }
 
   /**
    * Update the active layer to be the one with given id if no layer is with id,
