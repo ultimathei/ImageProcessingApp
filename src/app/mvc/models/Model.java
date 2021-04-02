@@ -25,7 +25,7 @@ public enum Model {
     private int viewerWidth = 512;
     private int viewerHeight = 512;
     private int paddingSize = 20;
-    private int sidePaneWidth = 200;
+    private int sidePaneWidth = 220;
 
     // The input image saved as a javafx image object
     private Image imageOriginal;

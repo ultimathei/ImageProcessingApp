@@ -42,7 +42,6 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
-import javafx.scene.transform.Scale;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
@@ -58,7 +57,6 @@ public class View extends Scene {
     private Model model;
 
     private MenuBar menuBar;
-    private StackPane zoomableCanvas;
     private StackPane infoStack;
     // private ScrollPane viewPort;
     private SplitPane viewPort;
@@ -67,12 +65,12 @@ public class View extends Scene {
     private VBox sidePane;
     private ListView<Layer> layersList;
 
-    final Slider shiftLevel = new Slider(-256, 255, 0);
-    final Label shiftValue = new Label(Double.toString(shiftLevel.getValue()));
-    final Slider scaleLevel = new Slider(0.0, 2.0, 1.0);
-    final Label scaleValue = new Label(Double.toString(scaleLevel.getValue()));
-    final Slider transparencyLevel = new Slider(0.0, 1.0, 1.0);
-    final Label transparencyValue = new Label(Double.toString(transparencyLevel.getValue()));
+    private Slider shiftLevel = new Slider(-256, 255, 0);
+    private Label shiftValue = new Label(Double.toString(shiftLevel.getValue()));
+    private Slider scaleLevel = new Slider(0.0, 2.0, 1.0);
+    private Label scaleValue = new Label(Double.toString(scaleLevel.getValue()));
+    private Slider transparencyLevel = new Slider(0.0, 1.0, 1.0);
+    private Label transparencyValue = new Label(Double.toString(transparencyLevel.getValue()));
 
     // singleton -- private constructor
     private View() {
@@ -181,19 +179,6 @@ public class View extends Scene {
         return true;
     }
 
-    // ZOOM for canvas - does not scale the image files
-    public void zoomInCanvas() {
-        // zoomableCanvas.getTransforms().add(new Scale(1.2, 1.2, 0, 0));
-    }
-
-    public void zoomOutCanvas() {
-        // zoomableCanvas.getTransforms().add(new Scale(0.8, 0.8, 0, 0));
-    }
-
-    public void resetZoomCanvas() {
-        // zoomableCanvas.getTransforms().add(new Scale(1, 1, 0, 0));
-    }
-
     // ASSEMBLE UI ELEMENTS
 
     /**
@@ -243,17 +228,71 @@ public class View extends Scene {
 
         if (layer != null) {
             // set values from layer
+            int row = 0;
             gridPane.setId("info_" + layer.getId());
-            gridPane.add(new Text("Layer id: "), 0, 0);
-            gridPane.add(new Text(layer.getId()), 1, 0);
+            gridPane.add(new Text("Layer id: "), 0, row);
+            gridPane.add(new Text(layer.getId()), 1, row);
+            row++;
 
-            gridPane.add(new Text("Layer name: "), 0, 1);
+            gridPane.add(new Text("Layer name: "), 0, row);
             String name = (layer.getName() != null) ? layer.getName() : "not set";
-            gridPane.add(new Text(name), 1, 1);
+            gridPane.add(new Text(name), 1, row);
+            row++;
 
-            gridPane.add(new Text("File extension: "), 0, 2);
+            gridPane.add(new Text("File extension: "), 0, row);
             String extension = (layer.getFileExtension() != null) ? layer.getFileExtension() : "not set";
-            gridPane.add(new Text(extension), 1, 2);
+            gridPane.add(new Text(extension), 1, row);
+            row++;
+
+            gridPane.add(new Label("Transparency: "), 0, row);
+            transparencyLevel.valueProperty().set(layer.getTransparency());
+            gridPane.add(transparencyValue, 1, row);
+            transparencyLevel.valueProperty().addListener((ObservableValue<? extends Number> ov, Number old_val,
+                    Number new_val) -> transparencyValue.setText(String.format("%2f", new_val)));
+            GridPane.setColumnSpan(transparencyLevel, 3);
+            row++;
+            gridPane.add(transparencyLevel, 0, row);
+            row++;
+
+            Button transBtn = new Button("Apply transparency");
+            transBtn.setOnAction(event -> eventBus.fireEvent(
+                    new AppEvent(AppEvent.SET_TRANSPARENCY, transparencyLevel.valueProperty().doubleValue())));
+            GridPane.setColumnSpan(transBtn, 3);
+            gridPane.add(transBtn, 0, row);
+            row++;
+
+            gridPane.add(new Label("Shift value: "), 0, row);
+            gridPane.add(shiftValue, 1, row);
+            shiftLevel.valueProperty().addListener((ObservableValue<? extends Number> ov, Number old_val,
+                    Number new_val) -> shiftValue.setText(String.format("%2f", new_val)));
+            GridPane.setColumnSpan(shiftLevel, 3);
+            row++;
+            gridPane.add(shiftLevel, 0, row);
+            row++;
+    
+            gridPane.add(new Label("Scale value: "), 0, row);
+            gridPane.add(scaleValue, 1, row);
+            scaleLevel.valueProperty().addListener((ObservableValue<? extends Number> ov, Number old_val,
+                    Number new_val) -> scaleValue.setText(String.format("%2f", new_val)));
+            GridPane.setColumnSpan(scaleLevel, 3);
+            row++;
+            gridPane.add(scaleLevel, 0, row);
+            row++;
+    
+            gridPane.add(new Label("Apply scale and shift:"), 0, row);
+    
+            Button shiftScaleBtn = new Button("v1");
+            shiftScaleBtn.setMinWidth(50);
+            shiftScaleBtn.setOnAction(event -> eventBus.fireEvent(new AppEvent(AppEvent.SHIFT_SCALE,
+                    shiftLevel.valueProperty().intValue(), scaleLevel.valueProperty().doubleValue())));
+            gridPane.add(shiftScaleBtn, 1, row);
+    
+            Button shiftScaleBtn2 = new Button("v2");
+            shiftScaleBtn2.setMinWidth(50);
+            shiftScaleBtn2.setOnAction(event -> eventBus.fireEvent(new AppEvent(AppEvent.SHIFT_SCALE_2,
+                    shiftLevel.valueProperty().intValue(), scaleLevel.valueProperty().doubleValue())));
+            gridPane.add(shiftScaleBtn2, 2, row);
+            // row++;
         } else {
             gridPane.setId("info_empty");
             gridPane.add(new Text("No layer selected! Open an image to create a layer!"), 0, 0);
@@ -269,56 +308,18 @@ public class View extends Scene {
      * @return the footer as a VBox object
      */
     private GridPane makeControlsPanel(String id) {
-        GridPane controls = new GridPane();
-        controls.setId(id);
-        controls.getStyleClass().add("controls");
-        controls.setHgap(5);
-        controls.setVgap(5);
+        GridPane gridPane = new GridPane();
+        gridPane.setId(id);
+        gridPane.getStyleClass().add("gridPane");
+        gridPane.setHgap(5);
+        gridPane.setVgap(5);
 
         CheckBox negativeCheckBox = new CheckBox("Negative");
         negativeCheckBox.setId("control--negative");
-        controls.add(negativeCheckBox, 0, 0);
+        gridPane.add(negativeCheckBox, 0, 0);
 
-        controls.add(new Label("Shift value: "), 0, 1);
-        controls.add(shiftValue, 1, 1);
-        shiftLevel.valueProperty().addListener((ObservableValue<? extends Number> ov, Number old_val,
-                Number new_val) -> shiftValue.setText(String.format("%2f", new_val)));
-        GridPane.setColumnSpan(shiftLevel, 3);
-        controls.add(shiftLevel, 0, 2);
 
-        controls.add(new Label("Scale value: "), 0, 3);
-        controls.add(scaleValue, 1, 3);
-        scaleLevel.valueProperty().addListener((ObservableValue<? extends Number> ov, Number old_val,
-                Number new_val) -> scaleValue.setText(String.format("%2f", new_val)));
-        GridPane.setColumnSpan(scaleLevel, 3);
-        controls.add(scaleLevel, 0, 4);
-
-        controls.add(new Label("Apply scale and shift:"), 0, 5);
-
-        Button shiftScaleBtn = new Button("v1");
-        shiftScaleBtn.setOnAction(event -> eventBus.fireEvent(new AppEvent(AppEvent.SHIFT_SCALE,
-                shiftLevel.valueProperty().intValue(), scaleLevel.valueProperty().doubleValue())));
-        controls.add(shiftScaleBtn, 1, 5);
-
-        Button shiftScaleBtn2 = new Button("v2");
-        shiftScaleBtn2.setOnAction(event -> eventBus.fireEvent(new AppEvent(AppEvent.SHIFT_SCALE_2,
-                shiftLevel.valueProperty().intValue(), scaleLevel.valueProperty().doubleValue())));
-        controls.add(shiftScaleBtn2, 2, 5);
-
-        controls.add(new Label("Transparency: "), 0, 6);
-        controls.add(transparencyValue, 1, 6);
-        transparencyLevel.valueProperty().addListener((ObservableValue<? extends Number> ov, Number old_val,
-                Number new_val) -> transparencyValue.setText(String.format("%2f", new_val)));
-        GridPane.setColumnSpan(transparencyLevel, 3);
-        controls.add(transparencyLevel, 0, 7);
-
-        Button transBtn = new Button("Apply transparency");
-        transBtn.setOnAction(event -> eventBus
-                .fireEvent(new AppEvent(AppEvent.SET_TRANSPARENCY, transparencyLevel.valueProperty().doubleValue())));
-        GridPane.setColumnSpan(transBtn, 3);
-        controls.add(transBtn, 0, 8);
-
-        return controls;
+        return gridPane;
     }
 
     /**
@@ -357,28 +358,6 @@ public class View extends Scene {
     }
 
     /**
-     * Assemble a layers list item object
-     * 
-     * @param id   String that is used as the id of the layer component
-     * @param name String that is used as the name of the layer
-     * @return the layer as a HBox object
-     */
-    private HBox makeLayersListItem(String id, String name) {
-        HBox listItem = new HBox();
-        listItem.setId(id);
-        listItem.setMinHeight(50);
-        listItem.setMaxHeight(50);
-        listItem.setPrefWidth(300);
-
-        // internal structure of a layer
-        Text text = new Text(name);
-        Button btn = makeLayerButton(IdSelectors.LAYER_BTN_ACTIVATE, "btn", AppEvent.SET_ACTIVE_LAYER);
-        listItem.getChildren().addAll(text, btn);
-
-        return listItem;
-    }
-
-    /**
      * Assemble the layers panel footer
      * 
      * @param id String that is used as the id of the layer component
@@ -401,23 +380,6 @@ public class View extends Scene {
         footer.getChildren().addAll(emptyRegion, removeBtn, addBtn);
 
         return footer;
-    }
-
-    /**
-     * Essemble a button for the layer component
-     * 
-     * @param id        String that is used as the id of the layer component
-     * @param text      String that is used as the display label of the button
-     * @param eventType the eventType object the button click calls
-     * @return a layer button as a Button object
-     */
-    private Button makeLayerButton(String id, String text, EventType<AppEvent> eventType) {
-        Button btn = new Button(text);
-        btn.setId(id);
-        btn.setPrefSize(60, 20);
-        btn.setOnAction(event -> eventBus.fireEvent(new AppEvent(eventType, id), "coming from: " + id));
-
-        return btn;
     }
 
     /**
@@ -450,23 +412,6 @@ public class View extends Scene {
         container.setTop(head);
         container.setCenter(body);
         return container;
-    }
-
-    /**
-     * Assemble a button for the control pane
-     * 
-     * @param id        String that is used as the id of the button component
-     * @param text      String that is used as the label of the button component
-     * @param eventType the event type the button will call
-     * @return a button as a Button object
-     */
-    private Button makeControlsPaneButton(String id, String text, EventType<AppEvent> eventType) {
-        Button btn = new Button(text);
-        btn.setId(id);
-        btn.setPrefSize(120, 20);
-        btn.setOnAction(event -> eventBus.fireEvent(new AppEvent(eventType)));
-
-        return btn;
     }
 
     /**

@@ -86,9 +86,12 @@ public class Layer {
   public boolean setTransparency(double amount) {
     if (amount < 0.0 || amount > 1.0)
       return false;
-    filteredImg = ConvertImage.setTransparency(getFilteredImg(), amount);
     transparency = amount;
     return true;
+  }
+
+  public double getTransparency(){
+    return transparency;
   }
 
   public boolean shiftScale1(int shift, double scale) {
@@ -114,7 +117,7 @@ public class Layer {
   }
 
   public Image getFilteredImg() {
-    return filteredImg;
+    return ConvertImage.setTransparency(filteredImg, transparency);
   }
 
   public Image setFilteredImg(Image img) {
@@ -134,7 +137,7 @@ public class Layer {
   public Image updateLocalRender(Image renderOfLayerBelow) {
     App.LOGGER2.log("in update local render");
     // return ConvertImage.pixelAdd(renderOfLayerBelow, filteredImg);
-    return ConvertImage.normalAdd(renderOfLayerBelow, filteredImg);
+    return ConvertImage.normalAdd(renderOfLayerBelow, getFilteredImg());
   }
 
   public String getId() {
