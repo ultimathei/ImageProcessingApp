@@ -331,10 +331,15 @@ public class View extends Scene {
         Button removeBtn = new Button("-");
         removeBtn.setOnAction(event -> eventBus.fireEvent(new AppEvent(AppEvent.REMOVE_LAYER)));
 
+        Button transBtn = new Button("T=0.5");
+        transBtn.setOnAction(event -> eventBus.fireEvent(new AppEvent(AppEvent.SET_TRANSPARENCY, 0.5)));
+        Button shiftScaleBtn = new Button("S+T");
+        shiftScaleBtn.setOnAction(event -> eventBus.fireEvent(new AppEvent(AppEvent.SHIFT_SCALE, 10, 1.0)));
+
         Region emptyRegion = new Region();
         HBox.setHgrow(emptyRegion, Priority.ALWAYS);
 
-        footer.getChildren().addAll(emptyRegion, removeBtn, addBtn);
+        footer.getChildren().addAll(transBtn, shiftScaleBtn, emptyRegion, removeBtn, addBtn);
 
         return footer;
     }
@@ -354,34 +359,6 @@ public class View extends Scene {
         btn.setOnAction(event -> eventBus.fireEvent(new AppEvent(eventType, id), "coming from: " + id));
 
         return btn;
-    }
-
-    /**
-     * Assembles a Controls Pane object, to be used as a set of action fields and
-     * buttons
-     * 
-     * @param id String that is used as the id of the layer component
-     * @return the control pane as an HBox object
-     */
-    private HBox makeControls(String id) {
-        HBox pane = new HBox();
-        pane.setId(id);
-        pane.setMinHeight(200);
-        pane.setBackground(new Background(new BackgroundFill(Color.web(ColorPalette.DARK_GREY), null, null)));
-        pane.setBorder(new Border(new BorderStroke(Color.web(ColorPalette.DARK_GREY), BorderStrokeStyle.SOLID,
-                CornerRadii.EMPTY, new BorderWidths(0.25))));
-
-        // the internal structure of a control pane -- read it from model?
-        // generate dynamically
-        List<Button> controlPaneBtns = new ArrayList<>();
-        controlPaneBtns.add(makeControlsPaneButton(IdSelectors.CONTROLS_BUTTON_ZOOM_IN, "Zoom in", AppEvent.ZOOM_IN));
-        controlPaneBtns
-                .add(makeControlsPaneButton(IdSelectors.CONTROLS_BUTTON_ZOOM_OUT, "Zoom out", AppEvent.ZOOM_OUT));
-        controlPaneBtns.add(makeControlsPaneButton("test-button-id-666", "Test", AppEvent.NEGATIVE_BTN));
-
-        pane.getChildren().addAll(controlPaneBtns);
-
-        return pane;
     }
 
     /**
@@ -446,7 +423,7 @@ public class View extends Scene {
         Pane leftHalf = makeAppComponent("left-half", "Original image of selected layer", display1);
 
         ScrollPane display2 = makeCanvasHalf(resultImageView, Color.GREEN);
-        Pane rightHalf = makeAppComponent("right-half", "Result image", display2);
+        Pane rightHalf = makeAppComponent("right-half", "Result image of combination of layers", display2);
         sp.getItems().addAll(leftHalf, rightHalf);
 
         return sp;

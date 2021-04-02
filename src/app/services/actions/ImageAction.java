@@ -14,6 +14,7 @@ public interface ImageAction{
     void zoomOut(Event event);
     void zoomReset(Event event);
     void setActiveLayer(AppEvent event);
-
+    void setTransparency(AppEvent event);
+    void shiftScale(AppEvent event);
     // void filterNegativeBtn(Event event);
 }

@@ -102,7 +102,7 @@ public class Controller implements ImageManipulationController {
       // test if the javafx image was constructed correctly
       if (image.isError()) {
         // some file types are not supported by javafx's Image class
-        image = ConvertImage.toJavafx(selectedFile);
+        image = ConvertImage.toJavaFxImage(selectedFile);
       }
       Layer addedLayer = new Layer(image, imageName, fileExtension);
       addedLayer = layerstack.addLayer(addedLayer, true);
@@ -200,6 +200,18 @@ public class Controller implements ImageManipulationController {
     Image inModel = model.setImageResult(result);
     return view.updateResultImage(inModel);
   }
+
+  public boolean setTransparency(double amount) {
+    return layerstack.getActiveLayer().setTransparency(amount) && updateResultImage(layerstack.size());
+  }
+  
+  public boolean applyFilterShiftScale(int shift, double scale) {
+    return layerstack.getActiveLayer().shiftScale1(shift, scale) && updateResultImage(layerstack.size());
+    //&& updateInfoPanel(layerstack.getActiveLayer());
+    // return layerstack.getActiveLayer().filterNegative()!=null && updateResultImage(layerstack.size());
+  }
+
+
 
   /**
    * Update the active layer to be the one with given id if no layer is with id,

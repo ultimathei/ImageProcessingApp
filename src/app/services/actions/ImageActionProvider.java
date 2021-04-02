@@ -20,6 +20,8 @@ public class ImageActionProvider implements ImageAction {
         eventBus.addEventHandler(AppEvent.ZOOM_OUT, this::zoomOut);
         eventBus.addEventHandler(AppEvent.ZOOM_RESET, this::zoomReset);
         eventBus.addEventHandler(AppEvent.SET_ACTIVE_LAYER, this::setActiveLayer);
+        eventBus.addEventHandler(AppEvent.SET_TRANSPARENCY, this::setTransparency);
+        eventBus.addEventHandler(AppEvent.SHIFT_SCALE, this::shiftScale);
 
         // testing buttons now
         // eventBus.addEventHandler(AppEvent.NEGATIVE_BTN, this::filterNegativeBtn);
@@ -27,13 +29,13 @@ public class ImageActionProvider implements ImageAction {
 
     // @Override
     // public void filterNegativeBtn(Event event) {
-    //     App.LOGGER.log("filter image as its negative here..");
-    //     if (Controller.getInstance().filterNegativeBtn()) {
-    //         App.LOGGER.log("success: " + event.getEventType());
-    //         Controller.getInstance().setHasChanged(true);
-    //     } else {
-    //         App.LOGGER.log("fail: " + event.getEventType());
-    //     }
+    // App.LOGGER.log("filter image as its negative here..");
+    // if (Controller.getInstance().filterNegativeBtn()) {
+    // App.LOGGER.log("success: " + event.getEventType());
+    // Controller.getInstance().setHasChanged(true);
+    // } else {
+    // App.LOGGER.log("fail: " + event.getEventType());
+    // }
     // }
 
     @Override
@@ -50,8 +52,8 @@ public class ImageActionProvider implements ImageAction {
     @Override
     public void flipHorizontal(Event event) {
         App.LOGGER.log("flip image horizontally here..");
-        if(Controller.getInstance().transformFlipHorizontal()){
-        App.LOGGER.log("success: " + event.getEventType());
+        if (Controller.getInstance().transformFlipHorizontal()) {
+            App.LOGGER.log("success: " + event.getEventType());
             Controller.getInstance().setHasChanged(true);
         } else {
             App.LOGGER.log("fail: " + event.getEventType());
@@ -61,7 +63,7 @@ public class ImageActionProvider implements ImageAction {
     @Override
     public void flipVertical(Event event) {
         App.LOGGER.log("flip image vertically here..");
-        if(Controller.getInstance().transformFlipVetical()){
+        if (Controller.getInstance().transformFlipVetical()) {
             App.LOGGER.log("success: " + event.getEventType());
             Controller.getInstance().setHasChanged(true);
         } else {
@@ -72,7 +74,7 @@ public class ImageActionProvider implements ImageAction {
     @Override
     public void resize(Event event) {
         App.LOGGER.log("resize image here..");
-        if(Controller.getInstance().displayResizeDialog()){
+        if (Controller.getInstance().displayResizeDialog()) {
             App.LOGGER.log("success: " + event.getEventType());
             Controller.getInstance().setHasChanged(true);
         } else {
@@ -83,7 +85,7 @@ public class ImageActionProvider implements ImageAction {
     @Override
     public void pixelScale(Event event) {
         App.LOGGER.log("pixel scale image here..");
-        if(Controller.getInstance().displayPixelScaleDialog()){
+        if (Controller.getInstance().displayPixelScaleDialog()) {
             App.LOGGER.log("success: " + event.getEventType());
             Controller.getInstance().setHasChanged(true);
         } else {
@@ -94,7 +96,7 @@ public class ImageActionProvider implements ImageAction {
     @Override
     public void pixelShift(Event event) {
         App.LOGGER.log("pixel shift image here..");
-        if(Controller.getInstance().displayPixelShiftDialog()){
+        if (Controller.getInstance().displayPixelShiftDialog()) {
             App.LOGGER.log("success: " + event.getEventType());
             Controller.getInstance().setHasChanged(true);
         } else {
@@ -105,7 +107,7 @@ public class ImageActionProvider implements ImageAction {
     @Override
     public void zoomIn(Event event) {
         App.LOGGER.log("zoom in canvas here..");
-        if(Controller.getInstance().zoomIn()){
+        if (Controller.getInstance().zoomIn()) {
             App.LOGGER.log("success: " + event.getEventType());
             Controller.getInstance().setHasChanged(true);
         } else {
@@ -116,7 +118,7 @@ public class ImageActionProvider implements ImageAction {
     @Override
     public void zoomOut(Event event) {
         App.LOGGER.log("zoom out canvas here..");
-        if(Controller.getInstance().zoomOut()){
+        if (Controller.getInstance().zoomOut()) {
             App.LOGGER.log("success: " + event.getEventType());
             Controller.getInstance().setHasChanged(true);
         } else {
@@ -127,7 +129,7 @@ public class ImageActionProvider implements ImageAction {
     @Override
     public void zoomReset(Event event) {
         App.LOGGER.log("zoom reset canvas here..");
-        if(Controller.getInstance().zoomReset()){
+        if (Controller.getInstance().zoomReset()) {
             App.LOGGER.log("success: " + event.getEventType());
             Controller.getInstance().setHasChanged(true);
         } else {
@@ -137,10 +139,32 @@ public class ImageActionProvider implements ImageAction {
 
     @Override
     public void setActiveLayer(AppEvent event) {
-        App.LOGGER.log("Update active layer reference to: "+event.getPayload());
-        if(Controller.getInstance().updateActiveLayerIndexById(event.getPayload())){
+        App.LOGGER.log("Update active layer reference to: " + event.getPayload());
+        if (Controller.getInstance().updateActiveLayerIndexById(event.getPayload())) {
             App.LOGGER.log("success: " + event.getEventType());
             Controller.getInstance().setHasChanged(true);
+        } else {
+            App.LOGGER.log("fail: " + event.getEventType());
+        }
+    }
+
+    @Override
+    public void setTransparency(AppEvent event) {
+        App.LOGGER.log("Set transparency to: " + event.getAmount());
+        if (Controller.getInstance().setTransparency(event.getAmount())) {
+            App.LOGGER.log("success: " + event.getEventType());
+            Controller.getInstance().setHasChanged(true);
+        } else {
+            App.LOGGER.log("fail: " + event.getEventType());
+        }
+    }
+
+    @Override
+    public void shiftScale(AppEvent event) {
+        App.LOGGER2.log("Shift scale here");
+        if (Controller.getInstance().applyFilterShiftScale(event.getShiftAmount(), event.getScaleAmount())) {
+            App.LOGGER2.log("success: " + event.getEventType());
+            // Controller.getInstance().setHasChanged(true);
         } else {
             App.LOGGER.log("fail: " + event.getEventType());
         }

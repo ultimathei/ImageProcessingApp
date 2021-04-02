@@ -6,6 +6,9 @@ import javafx.event.EventType;
 public class AppEvent extends Event {
     private static final long serialVersionUID = 1L;
     private String payload;
+    private double amount;
+    private int shiftAmount;
+    private double scaleAmount;
     
     // first define Any event, the super event
     public static final EventType<AppEvent> ANY 
@@ -62,6 +65,12 @@ public class AppEvent extends Event {
     public static final EventType<AppEvent> NEGATIVE_BTN
         = new EventType<>(ANY, "Negative_btn");
 
+    public static final EventType<AppEvent> SET_TRANSPARENCY
+        = new EventType<>(ANY, "Set transparency");
+
+    public static final EventType<AppEvent> SHIFT_SCALE
+        = new EventType<>(ANY, "Shift and scale");
+
     // CONSTRUCTORs
     public AppEvent(EventType<AppEvent> type) {
         super(type);
@@ -70,9 +79,29 @@ public class AppEvent extends Event {
         super(type);
         this.payload = payload;
     }
+    public AppEvent(EventType<AppEvent> type, double amount) {
+        super(type);
+        this.amount = amount;
+    }
+    public AppEvent(EventType<AppEvent> type, int shift, double scale) {
+        super(type);
+        this.shiftAmount = shift;
+        this.scaleAmount = scale;
+    }
 
     // GETTER
     public String getPayload(){
         return payload;
+    }
+    public double getAmount(){
+        return amount;
+    }
+
+    public int getShiftAmount() {
+        return shiftAmount;
+    }
+
+    public double getScaleAmount() {
+        return scaleAmount;
     }
 }
