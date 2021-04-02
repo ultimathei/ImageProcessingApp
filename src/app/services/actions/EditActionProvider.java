@@ -1,6 +1,7 @@
 package app.services.actions;
 
 import app.*;
+import app.mvc.controllers.Controller;
 import app.services.events.*;
 
 public class EditActionProvider implements EditAction {    
@@ -28,7 +29,7 @@ public class EditActionProvider implements EditAction {
     @Override
     public boolean undo() {
         App.LOGGER.log("undo here..");
-        return true;
+        return Controller.getInstance().undo();
     }
     
     @Override

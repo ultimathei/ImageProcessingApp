@@ -34,6 +34,11 @@ public enum Model {
     // the current scale of the filtered image
     private double currentScale = 1.0; 
 
+    public void updateModel(Image orig, Image res){
+        imageOriginal = orig;
+        imageResult = res;
+    }
+
     // ACTION HISTORY -- not used yet
     // unsaved changes indicator
     private boolean hasChanged = false;

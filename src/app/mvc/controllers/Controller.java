@@ -47,7 +47,7 @@ public class Controller implements ImageManipulationController {
   private Controller(boolean loadDefault) {
     registerServices();
     history = new LinkedList<>();
-    historyIndex = 0;
+    historyIndex = -1;
     layerstack = LayerStack.getInstance();
     originator = new Originator();
     model = Model.INSTANCE;
@@ -426,7 +426,11 @@ public class Controller implements ImageManipulationController {
     Image newImg = ConvertImage.negative(image);
     activeLayer.flipNegative();
     activeLayer.updateFilteredImage();
-    return view.updateResultImage(model.setImageResult(newImg));
+    boolean done = view.updateResultImage(model.setImageResult(newImg));
+    if(done) {
+      pushToHistory("Negative filter layer");
+    }
+    return done;
   }
 
   /**
@@ -444,18 +448,25 @@ public class Controller implements ImageManipulationController {
     mainStage.addEventHandler(WindowEvent.WINDOW_CLOSE_REQUEST, this::closeWindowEventHandler);
   }
 
-  // HISTORY -- NOT SURE YET
+  // HISTORY 
   public void pushToHistory(String actionName) {
-    originator.set(new Pair<>(actionName, model));
-    history.add(originator.saveToMemento());
+    App.LOGGER2.log("pushing to history");
+    originator.set(new Pair<>(actionName, new Pair<>(model, layerstack)));
     historyIndex++;
+    history.add(originator.saveToMemento());
   }
-
-  public void undo() {
+  public boolean undo() {
     // set model to the one from history
-    originator.restoreFromMemento(history.get(historyIndex));
+    App.LOGGER2.log("history-index: "+historyIndex);
+    if(historyIndex<0) return false;
+    Pair<Model, LayerStack> restoredState = originator.restoreFromMemento(history.get(historyIndex));
+    // update model and layerstack and view
+    model.updateModel(restoredState.getKey().getImageOriginal(), restoredState.getKey().getImageResult());
+    layerstack=restoredState.getValue();
+    selectNewLayer(layerstack.getActiveLayer());
+    historyIndex--;
+    return true;
   }
-
   // END of HISTORY :)
 
   // -- PRIVATE METHODS --
