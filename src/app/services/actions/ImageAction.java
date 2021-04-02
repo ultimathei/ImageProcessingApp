@@ -16,6 +16,10 @@ public interface ImageAction{
     void shiftScale2(AppEvent event);
     void lutLog(AppEvent event);
     void lutPow(AppEvent event);
+    void bitAnd(AppEvent event);
+    void bitOr(AppEvent event);
+    void bitNot(AppEvent event);
+    void bitXor(AppEvent event);
     // void zoomIn(Event event);
     // void zoomOut(Event event);
     // void zoomReset(Event event);

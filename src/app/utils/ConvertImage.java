@@ -407,6 +407,112 @@ public enum ConvertImage {
     return fromArray(resultArray);
   }
 
+
+  /**
+   * BITWISE AND
+   * @param img_a
+   * @param img_b
+   * @return
+   */
+  public static Image bitwiseAND(Image img_a, Image img_b){
+    if (img_a == null) {
+      throw new IllegalArgumentException("Image is null");
+    }
+    final PixelReader reader = img_a.getPixelReader();
+    if (reader == null) {
+      throw new IllegalStateException("Pixel reader not available..");
+    }
+
+    int width_a = (int) img_a.getWidth();
+    int height_a = (int) img_a.getHeight();
+
+    if (img_b == null) {
+      throw new IllegalArgumentException("Image is null");
+    }
+    final PixelReader reader2 = img_b.getPixelReader();
+    if (reader == null) {
+      throw new IllegalStateException("Pixel reader not available..");
+    }
+
+    int width_b = (int) img_b.getWidth();
+    int height_b = (int) img_b.getHeight();
+
+    int width_res = Math.max(width_a, width_b);
+    int height_res = Math.max(height_a, height_b);
+
+    int[][][] result = new int[width_res][height_res][4];
+
+    for (int y = 0; y < width_res; y++) {
+      for (int x = 0; x < height_res; x++) {
+        int p1 = reader.getArgb(x, y);
+        int p2 = reader2.getArgb(x, y);
+
+        int a = (p1 >> 24) & (p2 >> 24);
+        int r = (p1 >> 16) & (p2 >> 16);
+        int g = (p1 >> 8) & (p2 >> 8);
+        int b = p1 & p2;
+
+        result[x][y][0] = a;
+        result[x][y][1] = r;
+        result[x][y][2] = g;
+        result[x][y][3] = b;
+      }
+    }
+    return fromArray(result);
+  }
+  /**
+   * BITWISE AND
+   * @param img_a
+   * @param img_b
+   * @return
+   */
+  public static Image bitwiseOr(Image img_a, Image img_b){
+    if (img_a == null) {
+      throw new IllegalArgumentException("Image is null");
+    }
+    final PixelReader reader = img_a.getPixelReader();
+    if (reader == null) {
+      throw new IllegalStateException("Pixel reader not available..");
+    }
+
+    int width_a = (int) img_a.getWidth();
+    int height_a = (int) img_a.getHeight();
+
+    if (img_b == null) {
+      throw new IllegalArgumentException("Image is null");
+    }
+    final PixelReader reader2 = img_b.getPixelReader();
+    if (reader == null) {
+      throw new IllegalStateException("Pixel reader not available..");
+    }
+
+    int width_b = (int) img_b.getWidth();
+    int height_b = (int) img_b.getHeight();
+
+    int width_res = Math.max(width_a, width_b);
+    int height_res = Math.max(height_a, height_b);
+
+    int[][][] result = new int[width_res][height_res][4];
+
+    for (int y = 0; y < width_res; y++) {
+      for (int x = 0; x < height_res; x++) {
+        int p1 = reader.getArgb(x, y);
+        int p2 = reader2.getArgb(x, y);
+
+        int a = (p1 >> 24) | (p2 >> 24);
+        int r = (p1 >> 16) | (p2 >> 16);
+        int g = (p1 >> 8) | (p2 >> 8);
+        int b = p1 & p2;
+
+        result[x][y][0] = a;
+        result[x][y][1] = r;
+        result[x][y][2] = g;
+        result[x][y][3] = b;
+      }
+    }
+    return fromArray(result);
+  }
+
   // UTILITIES
   // for generating a LUT of 256 levels for logarithmic function
   public static int[] generateLogLUT() {

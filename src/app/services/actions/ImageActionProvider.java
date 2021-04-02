@@ -22,8 +22,8 @@ public class ImageActionProvider implements ImageAction {
         eventBus.addEventHandler(AppEvent.SHIFT_SCALE_2, this::shiftScale2);
         eventBus.addEventHandler(AppEvent.LUT_LOG, this::lutLog);
         eventBus.addEventHandler(AppEvent.LUT_POW, this::lutPow);
-        
-        // testing 
+
+        // testing
         // eventBus.addEventHandler(AppEvent.ZOOM_IN, this::zoomIn);
         // eventBus.addEventHandler(AppEvent.ZOOM_OUT, this::zoomOut);
         // eventBus.addEventHandler(AppEvent.ZOOM_RESET, this::zoomReset);
@@ -109,35 +109,35 @@ public class ImageActionProvider implements ImageAction {
 
     // @Override
     // public void zoomIn(Event event) {
-    //     App.LOGGER.log("zoom in canvas here..");
-    //     if (Controller.getInstance().zoomIn()) {
-    //         App.LOGGER.log("success: " + event.getEventType());
-    //         Controller.getInstance().setHasChanged(true);
-    //     } else {
-    //         App.LOGGER.log("fail: " + event.getEventType());
-    //     }
+    // App.LOGGER.log("zoom in canvas here..");
+    // if (Controller.getInstance().zoomIn()) {
+    // App.LOGGER.log("success: " + event.getEventType());
+    // Controller.getInstance().setHasChanged(true);
+    // } else {
+    // App.LOGGER.log("fail: " + event.getEventType());
+    // }
     // }
 
     // @Override
     // public void zoomOut(Event event) {
-    //     App.LOGGER.log("zoom out canvas here..");
-    //     if (Controller.getInstance().zoomOut()) {
-    //         App.LOGGER.log("success: " + event.getEventType());
-    //         Controller.getInstance().setHasChanged(true);
-    //     } else {
-    //         App.LOGGER.log("fail: " + event.getEventType());
-    //     }
+    // App.LOGGER.log("zoom out canvas here..");
+    // if (Controller.getInstance().zoomOut()) {
+    // App.LOGGER.log("success: " + event.getEventType());
+    // Controller.getInstance().setHasChanged(true);
+    // } else {
+    // App.LOGGER.log("fail: " + event.getEventType());
+    // }
     // }
 
     // @Override
     // public void zoomReset(Event event) {
-    //     App.LOGGER.log("zoom reset canvas here..");
-    //     if (Controller.getInstance().zoomReset()) {
-    //         App.LOGGER.log("success: " + event.getEventType());
-    //         Controller.getInstance().setHasChanged(true);
-    //     } else {
-    //         App.LOGGER.log("fail: " + event.getEventType());
-    //     }
+    // App.LOGGER.log("zoom reset canvas here..");
+    // if (Controller.getInstance().zoomReset()) {
+    // App.LOGGER.log("success: " + event.getEventType());
+    // Controller.getInstance().setHasChanged(true);
+    // } else {
+    // App.LOGGER.log("fail: " + event.getEventType());
+    // }
     // }
 
     @Override
@@ -204,5 +204,28 @@ public class ImageActionProvider implements ImageAction {
         } else {
             App.LOGGER.log("fail: " + event.getEventType());
         }
+    }
+
+    @Override
+    public void bitAnd(AppEvent event) {
+        Controller.getInstance().bitAnd(); 
+    }
+
+    @Override
+    public void bitOr(AppEvent event) {
+        Controller.getInstance().bitOr();
+
+    }
+
+    @Override
+    public void bitNot(AppEvent event) {
+        
+        Controller.getInstance().bitNot();
+
+    }
+
+    @Override
+    public void bitXor(AppEvent event) {
+        Controller.getInstance().bitXor();
     }
 }

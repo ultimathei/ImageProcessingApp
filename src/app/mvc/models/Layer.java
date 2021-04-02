@@ -114,6 +114,19 @@ public class Layer {
     return true;
   }
 
+  public void bitAnd(Layer layer) {
+    updateLocalRender(ConvertImage.bitwiseAND(getLocalRender(), layer.getLocalRender()));
+  }
+  public void bitOr(Layer layer) {
+    updateLocalRender(ConvertImage.bitwiseOr(getLocalRender(), layer.getLocalRender()));
+  }
+  public void bitNot() {
+    // updateLocalRender(ConvertImage.bitwiseNot(getLocalRender()));
+  }
+  public void bitXor(Layer layer) {
+    // updateLocalRender(ConvertImage.bitwiseXor(getLocalRender(), layer.getLocalRender()));
+  }
+
   // -- endof FILTERS --
 
   // -- GETTER/SETTERS --

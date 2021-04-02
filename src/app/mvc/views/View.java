@@ -319,7 +319,15 @@ public class View extends Scene {
             lutPowBtn.setOnAction(event -> eventBus.fireEvent(new AppEvent(AppEvent.LUT_POW, intPow)));
             GridPane.setColumnSpan(lutLogBtn, 3);
             gridPane.add(lutPowBtn, 0, row);
-            // row++;
+            row++;
+            
+            Button bitAndBtn = new Button("Filter with Power LUT");
+            bitAndBtn.setMinWidth(50);
+            bitAndBtn.setOnAction(event -> eventBus.fireEvent(new AppEvent(AppEvent.BIT_AND)));
+            gridPane.add(bitAndBtn, 0, row);
+            row++;
+
+
         } else {
             gridPane.setId("info_empty");
             gridPane.add(new Text("No layer selected! Open an image to create a layer!"), 0, 0);

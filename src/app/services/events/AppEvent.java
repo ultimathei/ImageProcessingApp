@@ -81,6 +81,19 @@ public class AppEvent extends Event {
     public static final EventType<AppEvent> LUT_POW
         = new EventType<>(ANY, "LUT power");
 
+
+    public static final EventType<AppEvent> BIT_AND
+        = new EventType<>(ANY, "Bitwise and");
+
+    public static final EventType<AppEvent> BIT_NOT
+        = new EventType<>(ANY, "Bitwise not");
+
+    public static final EventType<AppEvent> BIT_OR
+        = new EventType<>(ANY, "Bitwise or");
+
+    public static final EventType<AppEvent> BIT_XOR
+        = new EventType<>(ANY, "Bitwise xor");
+
     // CONSTRUCTORs
     public AppEvent(EventType<AppEvent> type) {
         super(type);

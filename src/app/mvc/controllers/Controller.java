@@ -204,7 +204,7 @@ public class Controller implements ImageManipulationController {
   public boolean setTransparency(double amount) {
     return layerstack.getActiveLayer().setTransparency(amount) && updateResultImage(layerstack.size());
   }
-  
+
   public boolean applyFilterShiftScale(int shift, double scale) {
     return layerstack.getActiveLayer().shiftScale1(shift, scale) && updateResultImage(layerstack.size());
   }
@@ -216,8 +216,29 @@ public class Controller implements ImageManipulationController {
   public boolean lutLog() {
     return layerstack.getActiveLayer().lutLog() && updateResultImage(layerstack.size());
   }
+
   public boolean lutPow(int p) {
     return layerstack.getActiveLayer().lutPow(p) && updateResultImage(layerstack.size());
+  }
+
+  public void bitAnd() {
+    layerstack.getActiveLayer().bitAnd(layerstack.getLayer(layerstack.getActiveLayerIndex()-1));
+    updateResultImage(layerstack.size());
+  }
+
+  public void bitOr() {
+    layerstack.getActiveLayer().bitOr(layerstack.getLayer(layerstack.getActiveLayerIndex()-1));
+    updateResultImage(layerstack.size());
+  }
+
+  public void bitNot() {
+    layerstack.getActiveLayer().bitNot();
+    updateResultImage(layerstack.size());
+  }
+
+  public void bitXor() {
+    layerstack.getActiveLayer().bitXor(layerstack.getLayer(layerstack.getActiveLayerIndex()-1));
+    updateResultImage(layerstack.size());
   }
 
   /**
@@ -427,7 +448,7 @@ public class Controller implements ImageManipulationController {
     activeLayer.flipNegative();
     activeLayer.updateFilteredImage();
     boolean done = view.updateResultImage(model.setImageResult(newImg));
-    if(done) {
+    if (done) {
       pushToHistory("Negative filter layer");
     }
     return done;
@@ -448,21 +469,23 @@ public class Controller implements ImageManipulationController {
     mainStage.addEventHandler(WindowEvent.WINDOW_CLOSE_REQUEST, this::closeWindowEventHandler);
   }
 
-  // HISTORY 
+  // HISTORY
   public void pushToHistory(String actionName) {
     App.LOGGER2.log("pushing to history");
     originator.set(new Pair<>(actionName, new Pair<>(model, layerstack)));
     historyIndex++;
     history.add(originator.saveToMemento());
   }
+
   public boolean undo() {
     // set model to the one from history
-    App.LOGGER2.log("history-index: "+historyIndex);
-    if(historyIndex<0) return false;
+    App.LOGGER2.log("history-index: " + historyIndex);
+    if (historyIndex < 0)
+      return false;
     Pair<Model, LayerStack> restoredState = originator.restoreFromMemento(history.get(historyIndex));
     // update model and layerstack and view
     model.updateModel(restoredState.getKey().getImageOriginal(), restoredState.getKey().getImageResult());
-    layerstack=restoredState.getValue();
+    layerstack = restoredState.getValue();
     selectNewLayer(layerstack.getActiveLayer());
     historyIndex--;
     return true;
