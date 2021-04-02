@@ -10,12 +10,14 @@ public interface ImageAction{
     void resize(Event event);
     void pixelScale(Event event);
     void pixelShift(Event event);
-    void zoomIn(Event event);
-    void zoomOut(Event event);
-    void zoomReset(Event event);
     void setActiveLayer(AppEvent event);
     void setTransparency(AppEvent event);
     void shiftScale(AppEvent event);
     void shiftScale2(AppEvent event);
+    void lutLog(AppEvent event);
+    void lutPow(AppEvent event);
+    // void zoomIn(Event event);
+    // void zoomOut(Event event);
+    // void zoomReset(Event event);
     // void filterNegativeBtn(Event event);
 }

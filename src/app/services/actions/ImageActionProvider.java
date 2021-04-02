@@ -16,15 +16,17 @@ public class ImageActionProvider implements ImageAction {
         eventBus.addEventHandler(AppEvent.RESIZE, this::resize);
         eventBus.addEventHandler(AppEvent.PIXEL_SCALE, this::pixelScale);
         eventBus.addEventHandler(AppEvent.PIXEL_SHIFT, this::pixelShift);
-        eventBus.addEventHandler(AppEvent.ZOOM_IN, this::zoomIn);
-        eventBus.addEventHandler(AppEvent.ZOOM_OUT, this::zoomOut);
-        eventBus.addEventHandler(AppEvent.ZOOM_RESET, this::zoomReset);
         eventBus.addEventHandler(AppEvent.SET_ACTIVE_LAYER, this::setActiveLayer);
         eventBus.addEventHandler(AppEvent.SET_TRANSPARENCY, this::setTransparency);
         eventBus.addEventHandler(AppEvent.SHIFT_SCALE, this::shiftScale);
         eventBus.addEventHandler(AppEvent.SHIFT_SCALE_2, this::shiftScale2);
-
-        // testing buttons now
+        eventBus.addEventHandler(AppEvent.LUT_LOG, this::lutLog);
+        eventBus.addEventHandler(AppEvent.LUT_POW, this::lutPow);
+        
+        // testing 
+        // eventBus.addEventHandler(AppEvent.ZOOM_IN, this::zoomIn);
+        // eventBus.addEventHandler(AppEvent.ZOOM_OUT, this::zoomOut);
+        // eventBus.addEventHandler(AppEvent.ZOOM_RESET, this::zoomReset);
         // eventBus.addEventHandler(AppEvent.NEGATIVE_BTN, this::filterNegativeBtn);
     }
 
@@ -105,38 +107,38 @@ public class ImageActionProvider implements ImageAction {
         }
     }
 
-    @Override
-    public void zoomIn(Event event) {
-        App.LOGGER.log("zoom in canvas here..");
-        if (Controller.getInstance().zoomIn()) {
-            App.LOGGER.log("success: " + event.getEventType());
-            Controller.getInstance().setHasChanged(true);
-        } else {
-            App.LOGGER.log("fail: " + event.getEventType());
-        }
-    }
+    // @Override
+    // public void zoomIn(Event event) {
+    //     App.LOGGER.log("zoom in canvas here..");
+    //     if (Controller.getInstance().zoomIn()) {
+    //         App.LOGGER.log("success: " + event.getEventType());
+    //         Controller.getInstance().setHasChanged(true);
+    //     } else {
+    //         App.LOGGER.log("fail: " + event.getEventType());
+    //     }
+    // }
 
-    @Override
-    public void zoomOut(Event event) {
-        App.LOGGER.log("zoom out canvas here..");
-        if (Controller.getInstance().zoomOut()) {
-            App.LOGGER.log("success: " + event.getEventType());
-            Controller.getInstance().setHasChanged(true);
-        } else {
-            App.LOGGER.log("fail: " + event.getEventType());
-        }
-    }
+    // @Override
+    // public void zoomOut(Event event) {
+    //     App.LOGGER.log("zoom out canvas here..");
+    //     if (Controller.getInstance().zoomOut()) {
+    //         App.LOGGER.log("success: " + event.getEventType());
+    //         Controller.getInstance().setHasChanged(true);
+    //     } else {
+    //         App.LOGGER.log("fail: " + event.getEventType());
+    //     }
+    // }
 
-    @Override
-    public void zoomReset(Event event) {
-        App.LOGGER.log("zoom reset canvas here..");
-        if (Controller.getInstance().zoomReset()) {
-            App.LOGGER.log("success: " + event.getEventType());
-            Controller.getInstance().setHasChanged(true);
-        } else {
-            App.LOGGER.log("fail: " + event.getEventType());
-        }
-    }
+    // @Override
+    // public void zoomReset(Event event) {
+    //     App.LOGGER.log("zoom reset canvas here..");
+    //     if (Controller.getInstance().zoomReset()) {
+    //         App.LOGGER.log("success: " + event.getEventType());
+    //         Controller.getInstance().setHasChanged(true);
+    //     } else {
+    //         App.LOGGER.log("fail: " + event.getEventType());
+    //     }
+    // }
 
     @Override
     public void setActiveLayer(AppEvent event) {
@@ -175,6 +177,28 @@ public class ImageActionProvider implements ImageAction {
     public void shiftScale2(AppEvent event) {
         App.LOGGER2.log("Shift scale 2 here");
         if (Controller.getInstance().applyFilterShiftScale2(event.getShiftAmount(), event.getScaleAmount())) {
+            App.LOGGER2.log("success: " + event.getEventType());
+            // Controller.getInstance().setHasChanged(true);
+        } else {
+            App.LOGGER.log("fail: " + event.getEventType());
+        }
+    }
+
+    @Override
+    public void lutLog(AppEvent event) {
+        App.LOGGER2.log("Lut log here");
+        if (Controller.getInstance().lutLog()) {
+            App.LOGGER2.log("success: " + event.getEventType());
+            // Controller.getInstance().setHasChanged(true);
+        } else {
+            App.LOGGER.log("fail: " + event.getEventType());
+        }
+    }
+
+    @Override
+    public void lutPow(AppEvent event) {
+        App.LOGGER2.log("Lut log here");
+        if (Controller.getInstance().lutPow(event.getPower())) {
             App.LOGGER2.log("success: " + event.getEventType());
             // Controller.getInstance().setHasChanged(true);
         } else {

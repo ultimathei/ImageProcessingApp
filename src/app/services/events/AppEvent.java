@@ -9,6 +9,7 @@ public class AppEvent extends Event {
     private double amount;
     private int shiftAmount;
     private double scaleAmount;
+    private int power;
     
     // first define Any event, the super event
     public static final EventType<AppEvent> ANY 
@@ -74,6 +75,12 @@ public class AppEvent extends Event {
     public static final EventType<AppEvent> SHIFT_SCALE_2
         = new EventType<>(ANY, "Shift and scale 2");
 
+    public static final EventType<AppEvent> LUT_LOG
+        = new EventType<>(ANY, "LUT logarithmic");
+
+    public static final EventType<AppEvent> LUT_POW
+        = new EventType<>(ANY, "LUT power");
+
     // CONSTRUCTORs
     public AppEvent(EventType<AppEvent> type) {
         super(type);
@@ -106,5 +113,9 @@ public class AppEvent extends Event {
 
     public double getScaleAmount() {
         return scaleAmount;
+    }
+    
+    public int getPower() {
+        return power;
     }
 }

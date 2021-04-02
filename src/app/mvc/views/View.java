@@ -6,6 +6,9 @@ import app.services.actions.*;
 import app.services.events.*;
 import app.utils.*;
 import java.util.List;
+
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
@@ -22,6 +25,7 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Slider;
 import javafx.scene.control.SplitPane;
+import javafx.scene.control.TextField;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
@@ -64,13 +68,7 @@ public class View extends Scene {
     private ImageView resultImageView;
     private VBox sidePane;
     private ListView<Layer> layersList;
-
-    private Slider shiftLevel = new Slider(-256, 255, 0);
-    private Label shiftValue = new Label(Double.toString(shiftLevel.getValue()));
-    private Slider scaleLevel = new Slider(0.0, 2.0, 1.0);
-    private Label scaleValue = new Label(Double.toString(scaleLevel.getValue()));
-    private Slider transparencyLevel = new Slider(0.0, 1.0, 1.0);
-    private Label transparencyValue = new Label(Double.toString(transparencyLevel.getValue()));
+    private int intPow = 0;
 
     // singleton -- private constructor
     private View() {
@@ -227,6 +225,12 @@ public class View extends Scene {
         gridPane.setVgap(5);
 
         if (layer != null) {
+            Slider shiftLevel = new Slider(-256, 255, 0);
+            Label shiftValue = new Label(Double.toString(shiftLevel.getValue()));
+            Slider scaleLevel = new Slider(0.0, 2.0, 1.0);
+            Label scaleValue = new Label(Double.toString(scaleLevel.getValue()));
+            Slider transparencyLevel = new Slider(0.0, 1.0, 1.0);
+            Label transparencyValue = new Label(Double.toString(transparencyLevel.getValue()));
             // set values from layer
             int row = 0;
             gridPane.setId("info_" + layer.getId());
@@ -269,7 +273,7 @@ public class View extends Scene {
             row++;
             gridPane.add(shiftLevel, 0, row);
             row++;
-    
+
             gridPane.add(new Label("Scale value: "), 0, row);
             gridPane.add(scaleValue, 1, row);
             scaleLevel.valueProperty().addListener((ObservableValue<? extends Number> ov, Number old_val,
@@ -278,20 +282,45 @@ public class View extends Scene {
             row++;
             gridPane.add(scaleLevel, 0, row);
             row++;
-    
+
             gridPane.add(new Label("Apply scale and shift:"), 0, row);
-    
+
             Button shiftScaleBtn = new Button("v1");
             shiftScaleBtn.setMinWidth(50);
             shiftScaleBtn.setOnAction(event -> eventBus.fireEvent(new AppEvent(AppEvent.SHIFT_SCALE,
                     shiftLevel.valueProperty().intValue(), scaleLevel.valueProperty().doubleValue())));
             gridPane.add(shiftScaleBtn, 1, row);
-    
+
             Button shiftScaleBtn2 = new Button("v2");
             shiftScaleBtn2.setMinWidth(50);
             shiftScaleBtn2.setOnAction(event -> eventBus.fireEvent(new AppEvent(AppEvent.SHIFT_SCALE_2,
                     shiftLevel.valueProperty().intValue(), scaleLevel.valueProperty().doubleValue())));
             gridPane.add(shiftScaleBtn2, 2, row);
+            row++;
+            
+            Button lutLogBtn = new Button("Filter with Logaritmic LUT");
+            lutLogBtn.setMinWidth(50);
+            lutLogBtn.setOnAction(event -> eventBus.fireEvent(new AppEvent(AppEvent.LUT_LOG)));
+            GridPane.setColumnSpan(lutLogBtn, 3);
+            gridPane.add(lutLogBtn, 0, row);
+            row++;
+
+            TextField powerInput = new TextField(""+intPow);
+            powerInput.setEditable(true);
+            powerInput.textProperty().addListener((observable, oldValue, newValue) -> {
+                try{
+                    intPow = Integer.parseInt(newValue);
+                }catch(Exception e){
+                    // stay same
+                }
+            });
+            gridPane.add(powerInput, 1, row);
+
+            Button lutPowBtn = new Button("Filter with Power LUT");
+            lutPowBtn.setMinWidth(50);
+            lutPowBtn.setOnAction(event -> eventBus.fireEvent(new AppEvent(AppEvent.LUT_POW, intPow)));
+            GridPane.setColumnSpan(lutLogBtn, 3);
+            gridPane.add(lutPowBtn, 0, row);
             // row++;
         } else {
             gridPane.setId("info_empty");
@@ -317,7 +346,6 @@ public class View extends Scene {
         CheckBox negativeCheckBox = new CheckBox("Negative");
         negativeCheckBox.setId("control--negative");
         gridPane.add(negativeCheckBox, 0, 0);
-
 
         return gridPane;
     }

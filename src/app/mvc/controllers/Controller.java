@@ -213,6 +213,13 @@ public class Controller implements ImageManipulationController {
     return layerstack.getActiveLayer().shiftScale2(shift, scale) && updateResultImage(layerstack.size());
   }
 
+  public boolean lutLog() {
+    return layerstack.getActiveLayer().lutLog() && updateResultImage(layerstack.size());
+  }
+  public boolean lutPow(int p) {
+    return layerstack.getActiveLayer().lutPow(p) && updateResultImage(layerstack.size());
+  }
+
   /**
    * Update the active layer to be the one with given id if no layer is with id,
    * return false
@@ -376,27 +383,6 @@ public class Controller implements ImageManipulationController {
     return false;
   }
 
-  // /**
-  // * NOT USED CURRENTLY
-  // * @param consumer
-  // * @return
-  // */
-  // public boolean displayDoubleDialog(Consumer<? super Double> consumer) {
-  // if (model.getImageResult() == null)
-  // return false;
-
-  // SliderDialog dialog = new SliderDialog(mainStage, "Scale amount",
-  // model.getCurrentScale(), 0.1, 2.0, 2);
-  // Optional<Double> result = dialog.showAndWait();
-  // try {
-  // result.ifPresent(consumer);
-  // return dialog.getResult() != null;
-  // } catch (Exception e) {
-  // App.LOGGER.log(e.getMessage());
-  // }
-  // return false;
-  // }
-
   /**
    * 
    * @param scale
@@ -428,8 +414,6 @@ public class Controller implements ImageManipulationController {
    * 
    */
   public boolean filterNegative() {
-    // Image image = model.getImageResult();
-    // Image image = layerstack.getActiveLayer().getFilteredImg();
     Layer activeLayer = layerstack.getActiveLayer();
     boolean isNegative = activeLayer.isNegative();
     Image image = activeLayer.getBaseImg();
@@ -444,33 +428,6 @@ public class Controller implements ImageManipulationController {
     activeLayer.updateFilteredImage();
     return view.updateResultImage(model.setImageResult(newImg));
   }
-
-  // ZOOM
-  public boolean zoomIn() {
-    view.zoomInCanvas();
-    return true;
-  }
-
-  public boolean zoomOut() {
-    view.zoomOutCanvas();
-    return true;
-  }
-
-  public boolean zoomReset() {
-    view.resetZoomCanvas();
-    return true;
-  }
-
-  /**
-   * 
-   * 
-   * @return
-   */
-  // public boolean negativeFilterByButton() {
-  // Image newImg = layerstack.setStackRenderAt(layerstack.size() - 1);
-  // Image filtered = model.setImageResult(newImg);
-  // return view.updateResultImage(filtered);
-  // }
 
   /**
    * Preparing the main stage of the app

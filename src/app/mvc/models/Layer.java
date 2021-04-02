@@ -103,6 +103,16 @@ public class Layer {
     filteredImg = ConvertImage.shiftAndScale2(getFilteredImg(), shift, scale);
     return true;
   }
+  
+  public boolean lutLog() {
+    filteredImg = ConvertImage.filterWithLUT(getFilteredImg(), ConvertImage.generateLogLUT());
+    return true;
+  }
+
+  public boolean lutPow(int p) {
+    filteredImg = ConvertImage.filterWithLUT(getFilteredImg(), ConvertImage.generatePowLUT(p));
+    return true;
+  }
 
   // -- endof FILTERS --
 
@@ -136,8 +146,8 @@ public class Layer {
 
   public Image updateLocalRender(Image renderOfLayerBelow) {
     App.LOGGER2.log("in update local render");
-    // return ConvertImage.pixelAdd(renderOfLayerBelow, filteredImg);
-    return ConvertImage.normalAdd(renderOfLayerBelow, getFilteredImg());
+    return ConvertImage.pixelAdd(renderOfLayerBelow, getFilteredImg());
+    // return ConvertImage.normalAdd(renderOfLayerBelow, getFilteredImg());
   }
 
   public String getId() {
@@ -180,15 +190,6 @@ public class Layer {
     negative = !negative;
     return negative;
   }
-
-  // ARITHMETIC OPERATIONS ? here or in controller!
-  //
-  // public Image add(Image toAdd){
-  // // perform arithmetic addition here
-  // // setLocalRender to result of operation
-  // Image result = toAdd;
-  // return result;
-  // }
 
   // -- STATIC METHODS --
 

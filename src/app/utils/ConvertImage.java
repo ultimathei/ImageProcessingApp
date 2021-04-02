@@ -387,7 +387,7 @@ public enum ConvertImage {
 
 
   // for Look-Up Table LUT of 256 levels
-  public Image filterWithLUT(Image image, int[] LUT) {
+  public static Image filterWithLUT(Image image, int[] LUT) {
     int width = (int) image.getWidth();
     int height = (int) image.getHeight();
     // Convert the image to array
@@ -409,7 +409,7 @@ public enum ConvertImage {
 
   // UTILITIES
   // for generating a LUT of 256 levels for logarithmic function
-  public static int[] generateLogLUT(int p) {
+  public static int[] generateLogLUT() {
     int[] LUT = new int[256];
     for (int k = 0; k < 256; k++) {
       LUT[k] = (int) (Math.log(1 + k) * 255 / Math.log(256));
