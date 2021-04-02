@@ -31,7 +31,7 @@ public class FileActionProvider implements FileAction {
     @Override
     public boolean removeLayer(Event event) {
         App.LOGGER.log("remove layer here..");
-        return Controller.getInstance().deleteLayer();
+        return Controller.getInstance().deleteSelectedLayer();
     }
     
     @Override

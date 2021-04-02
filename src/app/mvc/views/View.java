@@ -228,13 +228,13 @@ public class View extends Scene {
      */
     public GridPane makeInfoPane(Layer layer) {
         GridPane gridPane = new GridPane();
-        gridPane.setId("info_" + layer.getId());
         gridPane.getStyleClass().add("controls");
         gridPane.setHgap(5);
         gridPane.setVgap(5);
 
         if (layer != null) {
             // set values from layer
+            gridPane.setId("info_" + layer.getId());
             gridPane.add(new Text("Layer id: "), 0, 0);
             gridPane.add(new Text(layer.getId()), 1, 0);
 
@@ -250,6 +250,7 @@ public class View extends Scene {
             negativeCheckBox.setId("control--negative");
             gridPane.add(negativeCheckBox, 0, 3);
         } else {
+            gridPane.setId("info_empty");
             gridPane.add(new Text("No layer selected! Open an image to create a layer!"), 0, 0);
         }
 

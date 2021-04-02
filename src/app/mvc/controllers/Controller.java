@@ -107,19 +107,11 @@ public class Controller implements ImageManipulationController {
       Layer addedLayer = new Layer(image, imageName, fileExtension);
       addedLayer = layerstack.addLayer(addedLayer, true);
       view.setSelectedLayer(addedLayer);
-      return updateOriginalImage(addedLayer);
+      return addNewLayer(addedLayer);
     } catch (Exception e) {
       App.LOGGER.log("Image not found or corrupt file");
       return false;
     }
-  }
-
-  /**
-   * Deleting the active (selected) layer
-   * @return
-   */
-  public boolean deleteLayer() {
-    return layerstack.removeLayer();
   }
 
   /**
@@ -131,15 +123,13 @@ public class Controller implements ImageManipulationController {
     return (ObservableValue<? extends Layer> ov, Layer oldVal, Layer newVal) -> {
       // switching activeitem
       if (newVal != oldVal) {
-        if(newVal==null) {
+        if (newVal == null) {
           // no selected element -> the list is empty
-          layerstack.setActiveLayerIndex(-1);
-          // model.clearImages();
-          // view.clearCanvas();
+          clearCanvas();
         } else {
           layerstack.updateActiveLayerIndexById(newVal.getId());
+          selectNewLayer(newVal);
         }
-        updateOriginalImage(newVal);
       }
     };
   }
@@ -166,9 +156,35 @@ public class Controller implements ImageManipulationController {
    * 
    * @return back the newly set image
    */
-  public boolean updateOriginalImage(Layer layer) {
-    Image inModel = (layer==null) ? model.setImageOriginal(null) : model.setImageOriginal(layer.getBaseImg());
-    return (view.setNewOriginalimage(inModel) && updateResultImage() && updateInfoPanel(layer));
+  public boolean addNewLayer(Layer layer) {
+    Image inModel = (layer == null) ? model.setImageOriginal(null) : model.setImageOriginal(layer.getBaseImg());
+    return (view.setNewOriginalimage(inModel) && updateResultImage(layerstack.size()) && updateInfoPanel(layer));
+  }
+
+  public boolean selectNewLayer(Layer layer) {
+    Image img = (layer.getBaseImg() != null) ? layer.getBaseImg() : null;
+    Image inModel = model.setImageOriginal(img);
+    return (view.setNewOriginalimage(inModel) && updateInfoPanel(layer));
+  }
+
+  /**
+   * Deleting the active (selected) layer. When we delete an image, we also want
+   * to update the localrenders of layers above the deleted layer
+   * 
+   * @return
+   */
+  public boolean deleteSelectedLayer() {
+    Layer removedLayer = layerstack.removeLayer();
+    return removedLayer != null && updateResultImage(layerstack.size());
+  }
+
+  public void clearCanvas() {
+    layerstack.setActiveLayerIndex(-1);
+    model.setImageOriginal(null);
+    model.setImageResult(null);
+    view.setNewOriginalimage(null);
+    view.updateResultImage(null);
+    view.updateInfoStack(null);
   }
 
   /**
@@ -177,8 +193,10 @@ public class Controller implements ImageManipulationController {
    * 
    * @return back the newly set image
    */
-  public boolean updateResultImage() {
-    Image result = layerstack.getStackRenderAt(0);
+  public boolean updateResultImage(int forceUpdateFrom) {
+    // update effected local renders, so everythig from pos to 0
+    // get the top layers render that is the final result
+    Image result = layerstack.getStackRenderAt(0, forceUpdateFrom);
     Image inModel = model.setImageResult(result);
     return view.updateResultImage(inModel);
   }
@@ -437,9 +455,9 @@ public class Controller implements ImageManipulationController {
    * @return
    */
   // public boolean negativeFilterByButton() {
-  //   Image newImg = layerstack.setStackRenderAt(layerstack.size() - 1);
-  //   Image filtered = model.setImageResult(newImg);
-  //   return view.updateResultImage(filtered);
+  // Image newImg = layerstack.setStackRenderAt(layerstack.size() - 1);
+  // Image filtered = model.setImageResult(newImg);
+  // return view.updateResultImage(filtered);
   // }
 
   /**
